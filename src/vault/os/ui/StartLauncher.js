@@ -355,19 +355,10 @@ export function init() {
     close();
   });
 
-  const btnClassic = document.createElement('button');
-  btnClassic.className = 'vault-launcher__footer-btn';
-  btnClassic.textContent = 'Classic Vault';
-  btnClassic.title = 'Switch to Classic Web Vault view';
-  btnClassic.addEventListener('click', () => {
-    localStorage.setItem('vault_view_mode', 'classic');
-    window.location.href = '/?mode=classic';
-  });
 
   footer.appendChild(btnSignIn);
   footer.appendChild(btnAbout);
   footer.appendChild(btnSettings);
-  footer.appendChild(btnClassic);
 
   // Assemble
   _panel.appendChild(searchWrap);

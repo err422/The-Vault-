@@ -1,29 +1,40 @@
 /**
- * Browser-only entry for The Vault. Loads the shared account/ads scripts in the
- * original order, then boots the WebOS kernel (or classic mode).
+ * Browser-only entry for The Vault. Loads the Firebase SDK and the shared
+ * account/ads scripts in the original order, then boots the WebOS kernel.
+ *
+ * The shared scripts are classic (non-module) scripts that rely on globals
+ * such as `auth` and `database`, so they are injected as plain <script> tags.
  */
-import './shared/VisitTracker.js';
-import './shared/AuthCore.js';
-import './shared/VaultAds.js';
-import './shared/AuthUI.js';
-import './shared/PlaytimeConsolidation.js';
-import './shared/Stars.js';
+import firebaseConfig from './shared/FirebaseConfig.js?raw';
+import visitTracker from './shared/VisitTracker.js?raw';
+import authCore from './shared/AuthCore.js?raw';
+import vaultAds from './shared/VaultAds.js?raw';
+import authUI from './shared/AuthUI.js?raw';
+import playtime from './shared/PlaytimeConsolidation.js?raw';
+import stars from './shared/Stars.js?raw';
+
+const FIREBASE_SDK = [
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js',
+];
 
 let started = false;
 
-function injectBuyMeACoffee() {
-  const host = document.getElementById('bmc-home-button');
-  if (!host || host.querySelector('script')) return;
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
-  const attrs = {
-    'data-name': 'bmc-button', 'data-slug': 'TheVault_', 'data-color': '#FFDD00', 'data-emoji': '☕',
-    'data-font': 'Cookie', 'data-text': 'Buy me a coffee', 'data-outline-color': '#000000',
-    'data-font-color': '#000000', 'data-coffee-color': '#ffffff'
-  };
-  Object.entries(attrs).forEach(([k, v]) => script.setAttribute(k, v));
-  host.appendChild(script);
+function loadExternal(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Could not load ' + src));
+    document.head.appendChild(s);
+  });
+}
+
+function runInline(code, name) {
+  const s = document.createElement('script');
+  s.textContent = code + '\n//# sourceURL=vault/' + name;
+  document.body.appendChild(s);
 }
 
 function showStartupError(error) {
@@ -57,30 +68,21 @@ export async function startVault() {
   }
 
   try {
+    for (const src of FIREBASE_SDK) await loadExternal(src);
+    runInline(firebaseConfig, 'FirebaseConfig.js');
+    runInline(visitTracker, 'VisitTracker.js');
+    runInline(authCore, 'AuthCore.js');
+    runInline(vaultAds, 'VaultAds.js');
+    runInline(authUI, 'AuthUI.js');
+    runInline(playtime, 'PlaytimeConsolidation.js');
+    runInline(stars, 'Stars.js');
+
+    // Old bookmarks may still carry ?mode=classic; classic mode no longer exists.
+    localStorage.removeItem('vault_view_mode');
+
     const { boot } = await import('./os/core/Kernel.js');
-    const params = new URLSearchParams(window.location.search);
-    const modeParam = params.get('mode');
-    const savedMode = localStorage.getItem('vault_view_mode');
-    const isClassic = modeParam === 'classic' || (savedMode === 'classic' && modeParam !== 'webos');
-
-    if (!isClassic) {
-      document.body.classList.add('vault-os-active');
-      await boot();
-    } else {
-      document.body.classList.add('vault-classic-active');
-      document.getElementById('retro-boot-screen')?.remove();
-      injectBuyMeACoffee();
-    }
-
-    const webosBtn = document.getElementById('webos-toggle-btn');
-    if (webosBtn) {
-      webosBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        localStorage.setItem('vault_view_mode', 'webos');
-        window.location.href = '/?mode=webos';
-      });
-    }
+    document.body.classList.add('vault-os-active');
+    await boot();
   } catch (error) {
     showStartupError(error);
   }

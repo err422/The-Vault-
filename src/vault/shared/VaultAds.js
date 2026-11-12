@@ -1,11 +1,9 @@
 // VaultAds.js - Central membership-aware advertising gate.
-import * as cloud from '../cloud.js';
-
 (function () {
   let ready = false;
   let adFree = false;
   let adsLoaded = false;
-  let stopMembershipWatch = null;
+  let membershipRef = null;
   let hasMembershipSnapshot = false;
 
   function syncUI() {
@@ -55,22 +53,25 @@ import * as cloud from '../cloud.js';
   }
 
   function watchMembership(user, initialMembership) {
-    if (stopMembershipWatch) {
-      stopMembershipWatch();
-      stopMembershipWatch = null;
+    if (membershipRef) {
+      membershipRef.off();
+      membershipRef = null;
     }
     hasMembershipSnapshot = false;
 
-    if (!user) {
+    if (!user || !window.database) {
       applyMembership(null, false);
       return;
     }
 
+    membershipRef = window.database.ref('users/' + user.uid + '/membership');
     // The profile snapshot gives us an immediate initial value. The live
     // listener then catches admin activation/deactivation while the user is online.
     applyMembership(initialMembership, true);
-    stopMembershipWatch = cloud.watchMembership(user.uid, (membership) => {
-      applyMembership(membership, true);
+    membershipRef.on('value', (snapshot) => {
+      applyMembership(snapshot.val(), true);
+    }, (error) => {
+      console.warn('[VaultAds] Could not watch membership:', error);
     });
   }
 
@@ -96,7 +97,6 @@ import * as cloud from '../cloud.js';
 
   const style = document.createElement('style');
   style.textContent = `
-    body.vault-plus-active #bmc-home-button,
     body.vault-plus-active .vault-plus-promo {
       display: none !important;
     }

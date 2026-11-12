@@ -1,10 +1,5 @@
-// AuthCore.js - Authentication state & logic (Lovable Cloud).
-// Keeps the original window.AuthCore API and authProfileReady events.
-import * as cloud from '../cloud.js';
-
+// AuthCore.js - Authentication State & Logic
 (function() {
-    let lastUid;
-
     window.AuthCore = {
         currentUser: null,
         currentUsername: null,
@@ -12,70 +7,69 @@ import * as cloud from '../cloud.js';
         currentMembership: null,
         currentGuest: false,
         profileReady: false,
-
+        
         init() {
-            cloud.supabase.auth.onAuthStateChange((event, session) => {
-                const uid = session?.user?.id || null;
-                if (event !== 'INITIAL_SESSION' && uid === lastUid) {
-                    if (event === 'USER_UPDATED' && session?.user) this.currentUser = cloud.toVaultUser(session.user);
-                    return;
-                }
-                lastUid = uid;
-                // Defer: never call the auth client from inside its own callback.
-                setTimeout(() => this._handleUser(session?.user || null), 0);
-            });
-        },
-
-        async _handleUser(rawUser) {
-            const user = cloud.toVaultUser(rawUser);
-            this.currentUser = user;
-            this.currentGuest = !user && localStorage.getItem('vault_guest_session') === '1';
-            if (user) localStorage.removeItem('vault_guest_session');
-
-            this.profileReady = false;
-            this.currentAdmin = false;
-            this.currentMembership = null;
-
-            if (!user) {
-                this.currentUsername = null;
-                this.profileReady = true;
-                this.updateUI();
-                window.dispatchEvent(new CustomEvent('authProfileReady', {
-                    detail: { user: null, username: this.currentGuest ? 'Guest' : null, admin: false, membership: null, guest: this.currentGuest }
-                }));
-                return;
-            }
-
-            try {
-                const [profile, admin, membership] = await Promise.all([
-                    cloud.getProfile(user.uid),
-                    cloud.getIsAdmin(user.uid).catch(() => false),
-                    cloud.getMembership(user.uid).catch(() => null)
-                ]);
-                this.currentUsername = profile?.username || null;
-                this.currentAdmin = admin === true;
-                this.currentMembership = membership;
-                this.profileReady = true;
-                this.updateUI();
-                window.dispatchEvent(new CustomEvent('authProfileReady', {
-                    detail: { user, username: this.currentUsername, admin: this.currentAdmin, membership: this.currentMembership }
-                }));
-                setTimeout(() => this.loadUserData(), 500);
-            } catch (error) {
-                console.error('Could not load account profile:', error);
-                this.currentUsername = null;
+            auth.onAuthStateChanged((user) => {
+                this.currentUser = user;
+                this.currentGuest = !user && localStorage.getItem('vault_guest_session') === '1';
+                if (user) localStorage.removeItem('vault_guest_session');
+                
+                this.profileReady = false;
                 this.currentAdmin = false;
                 this.currentMembership = null;
-                this.profileReady = true;
-                this.updateUI();
-                window.dispatchEvent(new CustomEvent('authProfileReady', {
-                    detail: { user, username: null, admin: false, membership: null, error: true }
-                }));
-            }
-        },
 
+                if (user) {
+                    database.ref('users/' + user.uid).once('value')
+                        .then(async (snapshot) => {
+                            const userData = snapshot.val() || {};
+                            this.currentUsername = userData.username || null;
+                            this.currentMembership = userData.membership && typeof userData.membership === 'object' ? userData.membership : null;
+
+                            // Missing admin flags are treated as non-admin. Backfill old
+                            // accounts on their next sign-in without overwriting true flags.
+                            if (typeof userData.admin !== 'boolean') {
+                                try {
+                                    await database.ref('users/' + user.uid + '/admin').set(false);
+                                } catch (error) {
+                                    console.warn('Could not backfill default admin flag:', error);
+                                }
+                                this.currentAdmin = false;
+                            } else {
+                                this.currentAdmin = userData.admin === true;
+                            }
+
+                            this.profileReady = true;
+                            this.updateUI();
+                            window.dispatchEvent(new CustomEvent('authProfileReady', {
+                                detail: { user, username: this.currentUsername, admin: this.currentAdmin, membership: this.currentMembership }
+                            }));
+                            setTimeout(() => this.loadUserData(), 500);
+                        })
+                        .catch((error) => {
+                            console.error('Could not load account profile:', error);
+                            this.currentUsername = null;
+                            this.currentAdmin = false;
+                            this.currentMembership = null;
+                            this.profileReady = true;
+                            this.updateUI();
+                            window.dispatchEvent(new CustomEvent('authProfileReady', {
+                                detail: { user, username: null, admin: false, membership: null, error: true }
+                            }));
+                        });
+                } else {
+                    this.currentUsername = null;
+                    this.currentAdmin = false;
+                    this.currentMembership = null;
+                    this.profileReady = true;
+                    this.updateUI();
+                    window.dispatchEvent(new CustomEvent('authProfileReady', {
+                        detail: { user: null, username: this.currentGuest ? 'Guest' : null, admin: false, membership: null, guest: this.currentGuest }
+                    }));
+                }
+            });
+        },
+        
         updateUI() {
-            this.updateAdminNavigation();
             const authButtons = document.querySelectorAll('.auth-button');
             authButtons.forEach(btn => {
                 if (this.currentUser && this.currentUsername) {
@@ -91,50 +85,6 @@ import * as cloud from '../cloud.js';
             });
         },
         
-        updateAdminNavigation() {
-            const navBar = document.querySelector('.nav-bar');
-            if (!navBar) return;
-
-            const existing = document.getElementById('admin-nav-item');
-            const currentPageAdminItem = document.getElementById('admin-nav-current');
-            if (this.currentUser && this.currentAdmin === true) {
-                if (currentPageAdminItem) currentPageAdminItem.hidden = false;
-                if (existing || currentPageAdminItem) return;
-                const item = document.createElement('div');
-                item.id = 'admin-nav-item';
-                item.className = 'nav-item admin-nav-item';
-                item.setAttribute('role', 'link');
-                item.setAttribute('tabindex', '0');
-                item.title = 'Admin dashboard';
-                item.innerHTML = `
-                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="8" height="8" rx="1.5"/>
-                        <rect x="13" y="3" width="8" height="5" rx="1.5"/>
-                        <rect x="13" y="10" width="8" height="11" rx="1.5"/>
-                        <rect x="3" y="13" width="8" height="8" rx="1.5"/>
-                    </svg>
-                    <span class="nav-label">Admin</span>
-                `;
-                item.addEventListener('click', () => {
-                    if (window.navigation?.navigateTo) window.navigation.navigateTo('admin.html');
-                    else window.location.href = 'admin.html';
-                });
-                item.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        item.click();
-                    }
-                });
-                const fullscreen = document.getElementById('fullscreen-btn');
-                if (fullscreen && fullscreen.parentElement === navBar) navBar.insertBefore(item, fullscreen);
-                else navBar.appendChild(item);
-                if (window.navigation?.setup) window.navigation.setup();
-            } else {
-                if (existing) existing.remove();
-                if (currentPageAdminItem) currentPageAdminItem.hidden = true;
-            }
-        },
-
         validateUsername(username) {
             if (!username) return 'Username is required';
             if (username.length < 3) return 'Username must be at least 3 characters';
@@ -144,64 +94,87 @@ import * as cloud from '../cloud.js';
         },
         
         async isUsernameAvailable(username) {
-            return cloud.isUsernameAvailable(username);
+            if (typeof database === 'undefined') throw new Error('Database not initialized');
+            const snapshot = await database.ref('usernames/' + username).once('value');
+            return !snapshot.exists();
         },
-
+        
         async signIn(usernameOrEmail, password) {
             if (!usernameOrEmail || !password) {
                 throw new Error('Please enter username/email and password');
             }
-            if (usernameOrEmail.includes('@')) {
-                return cloud.signInWithEmail(usernameOrEmail, password);
+            
+            const isEmail = usernameOrEmail.includes('@');
+            
+            if (isEmail) {
+                return auth.signInWithEmailAndPassword(usernameOrEmail, password);
+            } else {
+                const snapshot = await database.ref('usernames/' + usernameOrEmail).once('value');
+                if (!snapshot.exists()) throw new Error('Username not found');
+                
+                const userId = snapshot.val();
+                const emailSnapshot = await database.ref('users/' + userId + '/email').once('value');
+                const email = emailSnapshot.val();
+                
+                return auth.signInWithEmailAndPassword(email, password);
             }
-            return cloud.signInUsername(usernameOrEmail, password);
         },
-
+        
         async signUp(username, email, password) {
             const usernameError = this.validateUsername(username);
             if (usernameError) throw new Error(usernameError);
-
+            
             if (!email || !email.includes('@') || !email.includes('.')) {
                 throw new Error('Please enter a valid email address');
             }
-
+            
             if (!password || password.length < 6) {
                 throw new Error('Password must be at least 6 characters');
             }
-
+            
             const available = await this.isUsernameAvailable(username);
             if (!available) throw new Error('Username "' + username + '" is already taken');
-
-            const { data, error } = await cloud.supabase.auth.signUp({
-                email,
-                password,
-                options: { emailRedirectTo: window.location.origin, data: { username } }
-            });
-            if (error) throw new Error(error.message);
-            return { username, needsConfirmation: !data.session };
+            
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const userId = userCredential.user.uid;
+            
+            const updates = {};
+            updates['users/' + userId] = {
+                username: username,
+                email: email,
+                createdAt: Date.now(),
+                favorites: [],
+                playtime: { daily: {}, weekly: {}, total: {} },
+                admin: false
+            };
+            updates['usernames/' + username] = userId;
+            
+            await database.ref().update(updates);
+            return username;
         },
-
-        async sendPasswordReset(identifier) {
-            if (!identifier) throw new Error('Enter your username or email');
-            return cloud.sendPasswordReset(identifier.trim());
-        },
-
+        
         async changeUsername(newUsername) {
             const error = this.validateUsername(newUsername);
             if (error) throw new Error(error);
-
+            
             if (newUsername === this.currentUsername) {
                 throw new Error('That\'s already your username');
             }
-
+            
             const available = await this.isUsernameAvailable(newUsername);
             if (!available) throw new Error('Username already taken');
-
-            await cloud.updateUsername(this.currentUser.uid, newUsername);
+            
+            const userId = this.currentUser.uid;
+            const updates = {};
+            updates['users/' + userId + '/username'] = newUsername;
+            updates['usernames/' + newUsername] = userId;
+            updates['usernames/' + this.currentUsername] = null;
+            
+            await database.ref().update(updates);
             this.currentUsername = newUsername;
             this.updateUI();
         },
-
+        
         continueAsGuest() {
             localStorage.setItem('vault_guest_session', '1');
             this.currentGuest = true;
@@ -218,39 +191,31 @@ import * as cloud from '../cloud.js';
             localStorage.removeItem('vault_guest_session');
             this.currentGuest = false;
             if (window.AuthUI) window.AuthUI.showModal('signin');
-            return cloud.supabase.auth.signOut();
+            return auth.signOut();
         },
-
+        
         loadUserData() {
             if (!this.currentUser) return;
-            cloud.getProfile(this.currentUser.uid)
-                .then((profile) => {
-                    if (profile && Array.isArray(profile.favorites)) {
-                        window.favorites = profile.favorites;
-                        if (typeof window.updateFavoritesBadge === 'function') window.updateFavoritesBadge();
-                        if (typeof window.updateCardStars === 'function') window.updateCardStars();
-                        else if (typeof window.updateGameCardStars === 'function') window.updateGameCardStars();
+            
+            database.ref('users/' + this.currentUser.uid).once('value')
+                .then((snapshot) => {
+                    const userData = snapshot.val();
+                    if (userData && userData.favorites) {
+                        favorites = userData.favorites;
+                        if (typeof updateFavoritesBadge === 'function') updateFavoritesBadge();
+                        if (typeof updateCardStars === 'function') updateCardStars();
+                        else if (typeof updateGameCardStars === 'function') updateGameCardStars();
                     }
                 })
                 .catch((error) => console.error('Error loading user data:', error));
         },
-
+        
         async getUserStats() {
             if (!this.currentUser) return null;
-            const profile = await cloud.getProfile(this.currentUser.uid);
-            if (!profile) return null;
-            return {
-                username: profile.username,
-                email: profile.email,
-                createdAt: profile.created_at ? new Date(profile.created_at).getTime() : null,
-                favorites: profile.favorites || [],
-                playtime: profile.playtime || { daily: {}, weekly: {}, total: {} },
-                admin: this.currentAdmin,
-                membership: this.currentMembership,
-                webos: profile.webos || {}
-            };
+            const snapshot = await database.ref('users/' + this.currentUser.uid).once('value');
+            return snapshot.val();
         },
-
+        
         calculateStats(userData) {
             let totalPlaytime = 0, gamesPlayed = 0;
             let favoriteGame = { name: 'None', time: 0 };
@@ -330,9 +295,9 @@ import * as cloud from '../cloud.js';
             }).filter(Boolean);
         }
     };
-
+    
     window.AuthCore.init();
-
+    
     window.authSystem = {
         showModal: () => window.AuthUI && window.AuthUI.showModal(),
         getCurrentUser: () => window.AuthCore.currentUser,

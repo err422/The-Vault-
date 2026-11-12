@@ -1,6 +1,5 @@
-// AuthUI.js - Account nav button + mandatory auth modal (Lovable Cloud)
+// AuthUI.js - Account nav button + mandatory auth modal
 (function() {
-    const GATED_PAGES = ['index.html', 'games.html', 'websites.html', ''];
 
     function injectStyles() {
         const guestStyle = document.createElement('style');
@@ -13,15 +12,6 @@
             }
             .auth-guest-btn:hover { background: rgba(124, 58, 237, .28); }
             .auth-guest-note { margin: 8px 0 0; font-size: 12px; opacity: .72; text-align: center; }
-            .auth-forgot-link {
-                display: block; width: 100%; margin-top: 10px; padding: 4px; border: 0; background: none;
-                color: #c4b5fd; font: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; text-align: center;
-            }
-            .auth-forgot-link:hover { color: #e9d5ff; }
-            .auth-reset-panel { margin-top: 12px; padding: 14px; border: 1px solid rgba(168, 85, 247, .35); border-radius: 10px; background: rgba(124, 58, 237, .08); }
-            .auth-reset-panel[hidden] { display: none; }
-            .auth-reset-copy { margin: 0 0 10px; font-size: 12px; line-height: 1.5; opacity: .8; }
-            .auth-modal-error.is-success { color: #6ee7b7; }
         `;
         document.head.appendChild(guestStyle);
         if (document.getElementById('auth-ui-styles')) return;
@@ -348,34 +338,6 @@
         document.head.appendChild(style);
     }
 
-    function addAccountButton() {
-        const navBar = document.querySelector('.nav-bar');
-        if (!navBar || document.getElementById('auth-nav-item')) return;
-
-        const btn = document.createElement('div');
-        btn.id = 'auth-nav-item';
-        btn.className = 'nav-item auth-button';
-        btn.style.cursor = 'pointer';
-        btn.innerHTML = `
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <span class="nav-label">Account</span>
-        `;
-
-        btn.addEventListener('click', () => {
-            if (window.navigation?.navigateTo) {
-                window.navigation.navigateTo('account.html');
-            } else {
-                window.location.href = 'account.html';
-            }
-        });
-
-        const fs = document.getElementById('fullscreen-btn');
-        fs ? navBar.insertBefore(btn, fs) : navBar.appendChild(btn);
-    }
-
     function createModal() {
         if (document.getElementById('auth-required-overlay')) return;
 
@@ -416,16 +378,6 @@
                     </div>
                     <div class="auth-modal-error" id="auth-signin-error" role="alert"></div>
                     <button class="auth-modal-btn" id="auth-signin-btn" type="button"><span>Unlock Desktop</span><span aria-hidden="true">↗</span></button>
-                    <button class="auth-forgot-link" id="auth-forgot-toggle" type="button">Forgot password? Moved from the old Vault? Set a new password</button>
-                    <div id="auth-reset-panel" class="auth-reset-panel" hidden>
-                        <p class="auth-reset-copy">Enter your username or email. We'll email you a secure link to choose a new password. Accounts moved from the old Vault keep their profile and settings.</p>
-                        <div class="auth-modal-group">
-                            <label class="auth-modal-label" for="auth-reset-id">USERNAME OR EMAIL</label>
-                            <input type="text" class="auth-modal-input" id="auth-reset-id" placeholder="Username or email" autocomplete="username">
-                        </div>
-                        <div class="auth-modal-error" id="auth-reset-msg" role="status"></div>
-                        <button class="auth-modal-btn" id="auth-reset-btn" type="button"><span>Email me a reset link</span><span aria-hidden="true">↗</span></button>
-                    </div>
                     <div class="auth-guest-divider"><span>OR</span></div>
                     <button class="auth-guest-btn" id="auth-continue-guest" type="button"><span class="auth-guest-icon">◌</span> Start a guest session</button>
                     <p class="auth-guest-note">Guest sessions are saved on this device. Account features won't be available.</p>
@@ -525,57 +477,15 @@
         btn.disabled = true;
 
         try {
-            const result = await window.AuthCore.signUp(username, email, password);
-            if (result && result.needsConfirmation) {
-                errorDiv.classList.add('is-success');
-                errorDiv.textContent = 'Almost there! Check ' + email + ' for a confirmation link, then sign in.';
-                btn.querySelector('span').textContent = 'Create Vault Account';
-                btn.disabled = false;
-            }
+            await window.AuthCore.signUp(username, email, password);
         } catch (error) {
-            errorDiv.classList.remove('is-success');
             errorDiv.textContent = error.message;
             btn.querySelector('span').textContent = 'Create Vault Account';
             btn.disabled = false;
         }
     }
 
-    async function handleResetRequest() {
-        const idInput = document.getElementById('auth-reset-id');
-        const msg = document.getElementById('auth-reset-msg');
-        const btn = document.getElementById('auth-reset-btn');
-        const identifier = idInput.value.trim();
-        msg.classList.remove('is-success');
-        if (!identifier) { msg.textContent = 'Enter your username or email.'; return; }
-        btn.disabled = true;
-        btn.querySelector('span').textContent = 'Sending...';
-        try {
-            await window.AuthCore.sendPasswordReset(identifier);
-            msg.classList.add('is-success');
-            msg.textContent = 'If that account exists, a reset link is on its way. Check your inbox (and spam).';
-        } catch (error) {
-            msg.textContent = error.message || 'Could not send the reset email. Try again.';
-        } finally {
-            btn.disabled = false;
-            btn.querySelector('span').textContent = 'Email me a reset link';
-        }
-    }
-
     function attachModalListeners() {
-        document.getElementById('auth-forgot-toggle').addEventListener('click', () => {
-            const panel = document.getElementById('auth-reset-panel');
-            panel.hidden = !panel.hidden;
-            if (!panel.hidden) {
-                const typed = document.getElementById('auth-signin-user').value.trim();
-                const idInput = document.getElementById('auth-reset-id');
-                if (typed && !idInput.value) idInput.value = typed;
-                idInput.focus();
-            }
-        });
-        document.getElementById('auth-reset-btn').addEventListener('click', handleResetRequest);
-        document.getElementById('auth-reset-id').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleResetRequest();
-        });
         document.getElementById('auth-tab-signin').addEventListener('click', () => switchTab('signin'));
         document.getElementById('auth-tab-signup').addEventListener('click', () => switchTab('signup'));
         const guestHandler = () => window.AuthCore.continueAsGuest();
@@ -622,28 +532,26 @@
         },
 
         requireAuth() {
+            if (typeof auth === 'undefined') {
+                console.warn('AuthUI: Firebase auth not loaded');
+                return;
+            }
+
             document.body.classList.add('auth-gated');
             createModal();
 
-            const apply = () => {
-                if (window.AuthCore?.currentUser || localStorage.getItem('vault_guest_session') === '1') {
+            auth.onAuthStateChanged((user) => {
+                if (user || localStorage.getItem('vault_guest_session') === '1') {
                     this.hideModal();
                 } else {
                     this.showModal('signin');
                 }
-            };
-            window.addEventListener('authProfileReady', apply);
-            if (window.AuthCore?.profileReady) apply();
+            });
         },
 
         init() {
             injectStyles();
-            addAccountButton();
-
-            const page = location.pathname.split('/').pop().toLowerCase();
-            if (GATED_PAGES.includes(page)) {
-                this.requireAuth();
-            }
+            this.requireAuth();
         }
     };
 

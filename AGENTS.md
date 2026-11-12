@@ -32,8 +32,7 @@ use the editor.
 ## The Vault (project rules)
 
 - The WebOS is plain browser JavaScript under `src/vault/` (migrated from the original vanilla site); `src/routes/index.tsx` renders the original page skeleton and dynamically imports `src/vault/boot.js` after hydration. Why: the OS touches `window`/`document` at import time and must never run during SSR.
-- All backend reads/writes from vault code go through `src/vault/cloud.js`; do not call the database client directly from OS apps. Why: one place maps the old Firebase data shapes (ms timestamps, `uid`) to Lovable Cloud tables.
-- Username → email resolution (username sign-in, reset-by-username) happens only in `src/lib/vault-auth.functions.ts` on the server. Why: profiles' emails must never be readable by the browser.
-- Admin status lives in `user_roles` (checked with `has_role`); Vault+ memberships are written only by admins. Why: prevents self-granting privileges.
+- The backend is the owner's existing Firebase project (Auth + Realtime Database, compat SDK loaded from gstatic in `boot.js`); do not move vault data to Lovable Cloud. Why: the owner manages Firebase directly and keeps existing users there.
+- `src/vault/shared/*.js` are classic scripts injected inline via `?raw`, not ES modules. Why: they rely on sloppy-mode globals (`auth`, `database`) from `FirebaseConfig.js`.
+- The site is WebOS-only; classic mode was removed. Why: the owner retired it.
 - Tailwind preflight is intentionally not imported in `src/styles.css`. Why: the original Vault stylesheets rely on browser default styles.
-- `src/vault/legacy/` holds classic-mode scripts kept for a future port; they are not imported and still reference Firebase. Why: the classic pages they belong to were missing from the imported archive.

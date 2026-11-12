@@ -13,7 +13,6 @@
 import settingsManager, { WALLPAPERS, ACCENTS } from '../core/SettingsManager.js';
 import store from '../core/Store.js';
 import firebaseSync from '../services/FirebaseSync.js';
-import * as cloud from '../../cloud.js';
 import OnboardingTour from '../ui/OnboardingTour.js';
 import SetupWizard from '../ui/SetupWizard.js';
 
@@ -337,7 +336,7 @@ export const AppManifest = {
         contentEl.querySelector('#set-rerun-setup-btn').addEventListener('click', async () => {
           const button = contentEl.querySelector('#set-rerun-setup-btn');
           const status = contentEl.querySelector('#set-rerun-setup-status');
-          const user = window.AuthCore?.currentUser || null;
+          const user = window.AuthCore?.currentUser || window.auth?.currentUser || null;
           if (!user?.uid) {
             status.textContent = 'Sign in first to save setup preferences to your account.';
             return;
@@ -345,7 +344,8 @@ export const AppManifest = {
           button.disabled = true;
           button.textContent = 'Opening setup…';
           try {
-            const cloudPrefs = await cloud.getWebosPrefs(user.uid);
+            const snapshot = await window.database.ref(`users/${user.uid}/webos`).once('value');
+            const cloudPrefs = snapshot.val() || {};
             await SetupWizard.show(user, { ...cloudPrefs, setupCompleted: false }, { force: true });
           } catch (err) {
             console.warn('[Settings] Could not reopen setup:', err);

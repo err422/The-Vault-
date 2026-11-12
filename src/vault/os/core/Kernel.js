@@ -7,7 +7,7 @@
  * 3. Global error boundary & Store initialization
  * 4. VirtualFS initialization and folder seeding
  * 5. SettingsManager & NotificationManager daemons
- * 6. Cloud sync bridge initialization
+ * 6. FirebaseSync bridge initialization
  * 7. Core application registration (10 apps)
  * 8. Shell UI mounting & Neofetch system info display
  *
@@ -200,7 +200,7 @@ export async function boot() {
 
   /* ---- 5. Initialize Firebase bridge ---- */
   firebaseSync.init();
-  printBootLine('[<span style=\"color:#10b981">  OK  </span>] Established Cloud Sync Bridge.');
+  printBootLine('[<span style=\"color:#10b981">  OK  </span>] Established Firebase Sync Bridge.');
 
   /* ---- 6. Register all built-in apps ---- */
   _registerCoreApps();

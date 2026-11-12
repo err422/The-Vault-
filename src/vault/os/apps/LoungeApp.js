@@ -161,9 +161,9 @@ export const AppManifest = {
         presenceStatus === 'local-only' ? 'local only' : 'connecting…'
       );
       countEl.title = presenceStatus === 'denied'
-        ? 'VaultNet presence could not connect. Check your connection and try again.'
+        ? 'Firebase rejected VaultNet presence. The VaultNet presence rules may not be enabled in the live database.'
         : presenceStatus === 'local-only'
-          ? 'Sign in to use cloud presence. Local tab presence is only a fallback.'
+          ? 'Sign in with Firebase to use cloud presence. Local tab presence is only a fallback.'
           : 'VaultNet presence connection status';
       peersEl.textContent = '';
       peers.forEach(peer => {

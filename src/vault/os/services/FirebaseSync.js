@@ -1,9 +1,10 @@
 /**
- * @fileoverview Cloud Authentication & Data Synchronization Bridge for The Web Vault WebOS.
+ * @fileoverview Firebase Authentication & Data Synchronization Bridge for The Web Vault WebOS.
  *
- * Listens to window.AuthCore (Lovable Cloud accounts).
- * Syncs user preferences (theme, wallpaper, accent, pinned apps) to the account's
- * WebOS preferences with graceful offline degradation.
+ * Wraps existing window.auth and window.database globals non-destructively.
+ * Never calls initializeApp() again.
+ * Syncs user preferences (theme, wallpaper, accent, pinned apps) to `users/{uid}/webos`
+ * with graceful offline degradation.
  *
  * @module os/services/FirebaseSync
  */
@@ -11,7 +12,6 @@
 import store from '../core/Store.js';
 import settingsManager from '../core/SettingsManager.js';
 import notificationManager from '../core/NotificationManager.js';
-import * as cloud from '../../cloud.js';
 
 class FirebaseSync {
   constructor() {
@@ -26,7 +26,7 @@ class FirebaseSync {
     if (this._initialized) return;
     this._initialized = true;
 
-    // Listen to AuthCore profile ready events
+    // Listen to AuthCore profile ready event or window.auth
     window.addEventListener('authProfileReady', (e) => {
       this._handleAuthChange(e.detail?.user, e.detail?.username, e.detail?.admin);
     });
@@ -38,6 +38,12 @@ class FirebaseSync {
         window.AuthCore.currentUsername,
         window.AuthCore.currentAdmin
       );
+    } else if (window.auth) {
+      window.auth.onAuthStateChanged((user) => {
+        if (!window.AuthCore) {
+          this._handleAuthChange(user, user?.displayName || user?.email?.split('@')[0], false);
+        }
+      });
     }
 
     // Listen to settings changes to push to cloud if logged in
@@ -71,8 +77,10 @@ class FirebaseSync {
   }
 
   async _pullCloudPreferences(uid) {
+    if (!window.database) return;
     try {
-      const cloudPrefs = await cloud.getWebosPrefs(uid);
+      const snap = await window.database.ref(`users/${uid}/webos`).once('value');
+      const cloudPrefs = snap.val() || {};
       this._cloudPrefs = cloudPrefs;
       if (cloudPrefs.displayName) store.setState('session.displayName', cloudPrefs.displayName);
       if (cloudPrefs.avatar) store.setState('session.avatar', cloudPrefs.avatar);
@@ -106,7 +114,7 @@ class FirebaseSync {
   }
 
   async _pushCloudPreferences() {
-    if (!this._user) return;
+    if (!this._user || !window.database) return;
     try {
       const settings = settingsManager.getAll();
       // Keep only lightweight syncable fields
@@ -123,7 +131,7 @@ class FirebaseSync {
         lastSynced: Date.now()
       };
 
-      await cloud.mergeWebosPrefs(toSync);
+      await window.database.ref(`users/${this._user.uid}/webos`).update(toSync);
     } catch (err) {
       console.warn('[FirebaseSync] Cloud sync update failed (using local cache):', err);
     }
@@ -147,7 +155,9 @@ class FirebaseSync {
     if (window.AuthCore?.signOut) {
       return await window.AuthCore.signOut();
     }
-    return await cloud.supabase.auth.signOut();
+    if (window.auth?.signOut) {
+      return await window.auth.signOut();
+    }
   }
 }
 

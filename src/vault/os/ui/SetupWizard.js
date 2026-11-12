@@ -2,7 +2,6 @@
  * First-run desktop setup for The Web Vault WebOS.
  * Account-wide choices live in users/{uid}/webos; fullscreen remains device-local.
  */
-import * as cloud from '../../cloud.js';
 import settingsManager, { ACCENTS, WALLPAPERS } from '../core/SettingsManager.js';
 import store from '../core/Store.js';
 
@@ -152,11 +151,11 @@ class SetupWizard {
         const desktopApps=[...overlay.querySelectorAll('[data-desktop-app]:checked')].map(input=>input.dataset.desktopApp);
         settingsManager.set('desktopApps',desktopApps);
         const prefs={setupCompleted:true,setupVersion:1,displayName:(overlay.querySelector('#vfs-display-name').value.trim().slice(0,24) || store.getState('session.username') || 'User'),avatar,theme,accent,wallpaper:customUrl?'vault-default':wallpaper,customWallpaperUrl:customUrl,desktopApps,updatedAt:Date.now()};
-        if(user.uid) {
+        if(window.database && user.uid) {
           try {
-            await cloud.mergeWebosPrefs(prefs);
+            await window.database.ref(`users/${user.uid}/webos`).update(prefs);
           } catch (cloudError) {
-            // Do not trap a user in setup when the cloud is temporarily unavailable.
+            // Do not trap a user in setup when Firebase is temporarily unavailable.
             console.warn('[SetupWizard] Cloud save failed; keeping local choices:', cloudError);
           }
         }

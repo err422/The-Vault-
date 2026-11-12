@@ -355,20 +355,4 @@
   border-radius: var(--vault-radius-xs);
 }
 
-/* --------------------------------------------------------------------------
-   7. MODE DISPLAY RULES (WebOS vs Classic Vault)
-   -------------------------------------------------------------------------- */
-body.vault-os-active .nav-bar,
-body.vault-os-active #app-content,
-body.vault-os-active #bmc-home-button {
-  display: none !important;
-}
-
-body.vault-classic-active #vault-desktop,
-body.vault-classic-active .vault-topbar,
-body.vault-classic-active .vault-dock,
-body.vault-classic-active #vault-windows-layer,
-body.vault-classic-active .vault-launcher-overlay {
-  display: none !important;
-}
 
