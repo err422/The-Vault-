@@ -1,0 +1,27 @@
+{
+  "source": "code-archive: The-Vault-Main_1.zip (vanilla HTML/CSS/JS WebOS hub, Firebase Auth + Realtime Database)",
+  "capabilities": [
+    {"capability": "code: WebOS shell (Kernel, window manager, 13 apps, desktop UI, styles)", "source": "os/**", "outcome": "migrate: bundled as client-only modules booted from the / route", "status": "in_progress", "next_action": "port and boot"},
+    {"capability": "code: shared scripts (AuthCore, AuthUI, VaultAds, VisitTracker, Stars)", "source": "JS/Shared/*", "outcome": "migrate: rewritten against Lovable Cloud", "status": "in_progress", "next_action": "port"},
+    {"capability": "code: classic (non-WebOS) mode pages", "source": "games.html, websites.html, account.html, settings.html, admin.html, CSS/shared.css, JS/Pages/*, Navigation.js, VersionChecker.js, PrivacySettings.js, DebugSystem.js", "outcome": "pending: files are referenced but missing from the archive", "status": "blocked", "next_action": "user to attach the missing classic-mode files"},
+    {"capability": "code: classic-only scripts (CustomEntries, browser.js tabs, BellSchedule, ChangeLog, PlaytimeConsolidation)", "source": "JS/Shared/*", "outcome": "pending: only loaded by missing classic pages; data columns preserved", "status": "blocked", "next_action": "port with classic pages"},
+    {"capability": "static data: games and websites catalogs", "source": "Data/games.json, Data/Websites.json", "outcome": "migrate: served as static files", "status": "in_progress", "next_action": "copy to public/Data"},
+    {"capability": "standalone launcher page", "source": "launcher.html", "outcome": "migrate: served unchanged at /launcher.html", "status": "in_progress", "next_action": "copy"},
+    {"capability": "schema: users profile, usernames index, webos prefs, favorites, playtime", "source": "Firebase RTDB users/*, usernames/*", "outcome": "migrate: profiles table", "status": "in_progress", "next_action": "migration"},
+    {"capability": "authorization: admin flag", "source": "users/{uid}/admin", "outcome": "migrate: user_roles table + has_role()", "status": "in_progress", "next_action": "migration"},
+    {"capability": "schema: Vault+ membership", "source": "users/{uid}/membership", "outcome": "migrate: memberships table, admin-only writes", "status": "in_progress", "next_action": "migration"},
+    {"capability": "schema: site visit counter", "source": "siteStats/visits", "outcome": "migrate: site_stats + record_visit()", "status": "in_progress", "next_action": "migration"},
+    {"capability": "realtime: VaultNet chat", "source": "vaultnet/chat", "outcome": "migrate: chat_messages table + realtime", "status": "in_progress", "next_action": "migration"},
+    {"capability": "realtime: VaultNet presence", "source": "vaultnet/presence", "outcome": "migrate: Lovable Cloud realtime presence channel", "status": "in_progress", "next_action": "port"},
+    {"capability": "records: application data", "source": "Firebase RTDB", "outcome": "migrate", "status": "pending", "next_action": "user to export RTDB JSON (users, siteStats, vaultnet/chat)"},
+    {"capability": "auth identities", "source": "Firebase Auth (email/password, username lookup)", "outcome": "migrate: Lovable Cloud email/password, username sign-in via server lookup, first-login password reset flow", "status": "pending", "next_action": "user to export Firebase Auth users"},
+    {"capability": "external: ads (AdSense, pop-under, push service worker, ads.txt)", "source": "VaultAds.js, sw.js, Ads.txt", "outcome": "preserve", "status": "in_progress", "next_action": "copy"},
+    {"capability": "external: Cloudflare Web Analytics beacon", "source": "index.html", "outcome": "preserve", "status": "in_progress", "next_action": "add to head"},
+    {"capability": "external: Buy Me a Coffee button/links", "source": "index.html, Desktop.js", "outcome": "preserve", "status": "in_progress", "next_action": "keep"},
+    {"capability": "external: web proxy (proxy.thewebvault.org) for Browser app", "source": "BrowserApp.js", "outcome": "preserve; works once served from thewebvault.org (frame-ancestors/origin checks)", "status": "pending", "next_action": "cutover"},
+    {"capability": "external: Zen GS third-party games wall loader", "source": "GamesApp.js", "outcome": "preserve unchanged", "status": "in_progress", "next_action": "keep"},
+    {"capability": "secrets", "source": "Firebase web config (public)", "outcome": "none required; Firebase config removed", "status": "verified", "next_action": "none"},
+    {"capability": "cutover: custom domain thewebvault.org", "source": "CNAME", "outcome": "pending: point domain to Lovable after publish", "status": "pending", "next_action": "user connects domain"},
+    {"capability": "verification", "source": "-", "outcome": "build, boot, auth, chat, admin", "status": "pending", "next_action": "verify"}
+  ]
+}

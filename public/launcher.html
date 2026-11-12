@@ -1,0 +1,2601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c0914">
+<title>The Web Vault</title>
+
+<script>document.documentElement.className = "js";</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0c0914;
+  --bg2: #140d20;
+  --plate: #17111f;
+  --plate2: #20172d;
+  --steel: #302341;
+  --line: #3a2e4d;
+  --purple: #8b5cf6;
+  --purple2: #a77aff;
+  --glow: #d4b8ff;
+  --text: #ece8f5;
+  --muted: #a69bb8;
+  --head: "Bricolage Grotesque", system-ui, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font: 16px/1.6 var(--body);
+  background:
+    radial-gradient(ellipse at 15% 0%, #28183c 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 35%, #170d27 0%, transparent 50%),
+    var(--bg);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: .16;
+  background-image:
+    linear-gradient(rgba(180,140,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,140,255,.06) 1px, transparent 1px);
+  background-size: 55px 55px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+a { color: var(--glow); }
+
+button, a { -webkit-tap-highlight-color: transparent; }
+
+.wrap {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 40px 28px 70px;
+}
+
+/* BOOT SEQUENCE */
+
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px;
+  background: #09060f;
+  transition:
+    opacity .65s cubic-bezier(.2,.8,.2,1),
+    transform .65s cubic-bezier(.2,.8,.2,1);
+}
+
+.boot-screen[hidden] { display: none; }
+
+.boot-screen.hidden {
+  opacity: 0;
+  transform: scale(1.035);
+  pointer-events: none;
+}
+
+.boot-console {
+  width: min(650px, 100%);
+  color: var(--purple2);
+  font: .85rem/1.8 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .035em;
+}
+
+.boot-line {
+  margin: 0;
+  opacity: .8;
+  animation: bootLine .25s ease both;
+}
+
+.boot-line.success {
+  color: var(--glow);
+  font-weight: 700;
+}
+
+.boot-line.warn { color: #d9adff; }
+
+.boot-hint {
+  position: absolute;
+  top: 36px;
+  right: 40px;
+  color: var(--muted);
+  font: .68rem var(--mono);
+  letter-spacing: .12em;
+  opacity: .65;
+  text-transform: uppercase;
+}
+
+.boot-brand {
+  position: absolute;
+  top: 35px;
+  left: 40px;
+  color: var(--text);
+  font: 700 .85rem var(--head);
+  letter-spacing: .1em;
+}
+
+.boot-brand span { color: var(--purple2); }
+
+@keyframes bootLine {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: .85; transform: none; }
+}
+
+/* GENERAL */
+
+h1, h2, h3, p { margin-top: 0; }
+
+h1, h2, h3 {
+  font-family: var(--head);
+  letter-spacing: -.035em;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: var(--purple2);
+  font: 700 .7rem var(--mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: var(--purple2);
+}
+
+.lead {
+  max-width: 48ch;
+  color: var(--muted);
+  font-size: 1.08rem;
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 11px 20px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: var(--purple);
+  color: white;
+  text-decoration: none;
+  font: 700 .95rem var(--head);
+  cursor: pointer;
+  transition:
+    background .2s,
+    border-color .2s,
+    transform .2s,
+    box-shadow .2s;
+}
+
+.btn:hover {
+  background: #9d78fa;
+  box-shadow: 0 5px 25px #8b5cf633;
+  transform: translateY(-2px);
+}
+
+.btn:active { transform: translateY(0); }
+
+.btn.alt {
+  background: rgba(255,255,255,.025);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.btn.alt:hover {
+  background: var(--plate2);
+  border-color: var(--purple);
+  box-shadow: none;
+}
+
+.button-sparks {
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+}
+
+.button-sparks span {
+  position: absolute;
+  top: var(--top);
+  left: var(--left);
+  width: 3px;
+  height: 9px;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 0 4px #fff, 0 0 10px var(--purple2);
+  animation: buttonSpark .65s ease-out forwards;
+}
+
+.button-sparks span:nth-child(even) {
+  background: var(--purple2);
+  box-shadow: 0 0 5px var(--glow), 0 0 12px var(--purple2);
+}
+
+@keyframes buttonSpark {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--angle)) scaleY(.7);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+      calc(-50% + var(--x)),
+      calc(-50% + var(--y))
+    ) rotate(var(--angle)) scaleY(.35);
+  }
+}
+
+.btn:focus-visible,
+.pick:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--glow);
+  outline-offset: 4px;
+}
+
+.scroll-cue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 34px;
+  color: var(--muted);
+  font: .68rem var(--mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.scroll-cue-line {
+  display: block;
+  width: 38px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--purple2), transparent);
+  transform-origin: left;
+  animation: scrollCuePulse 1.8s ease-in-out infinite;
+}
+
+@keyframes scrollCuePulse {
+  0%, 100% { opacity: .45; transform: scaleX(.65); }
+  50% { opacity: 1; transform: scaleX(1); }
+}
+
+/* HERO */
+
+.hero {
+  min-height: 680px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 35px;
+  padding: 45px 0 85px;
+}
+
+.hero-copy { position: relative; z-index: 2; }
+
+.hero h1 {
+  max-width: 650px;
+  margin-bottom: 22px;
+  font-size: clamp(3.5rem, 8vw, 6.7rem);
+  line-height: .91;
+  letter-spacing: -.07em;
+}
+
+.hero h1 > .decrypt-line.accent {
+  display: block;
+  color: var(--purple2);
+}
+
+.decrypt-line {
+  display: block;
+  min-height: 0.95em;
+}
+
+.decrypt-line .char {
+  display: inline-block;
+  transition:
+    color .2s ease,
+    text-shadow .2s ease;
+}
+
+.decrypt-line .char.resolved {
+  color: inherit;
+  text-shadow: 0 0 18px rgba(167, 122, 255, .35);
+}
+
+.decrypt-line.accent .char.resolved {
+  color: var(--purple2);
+  text-shadow: 0 0 22px rgba(167, 122, 255, .5);
+}
+
+.hero .lead {
+  max-width: 43ch;
+  margin-bottom: 30px;
+  font-size: 1.12rem;
+  line-height: 1.75;
+}
+
+.hero-visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+
+.door-wrapper {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 510px);
+  transform-style: preserve-3d;
+  transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  transform:
+    translate3d(var(--door-shift-x, 0px), var(--door-shift-y, 0px), 0)
+    rotateX(var(--door-tilt-x, 0deg))
+    rotateY(var(--door-tilt-y, 0deg));
+}
+
+.door-transition.door-stage .door-wrapper { transition: none; }
+
+.door-tick-ring {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  overflow: visible;
+  pointer-events: none;
+  opacity: var(--tick-ring-opacity, 1);
+  transform: translate(-50%, -50%) scale(var(--camera-scale, 1));
+}
+
+.door {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  overflow: visible;
+  cursor: pointer;
+  filter: drop-shadow(0 25px 55px #0008);
+  transform-origin: center;
+  transform: scale(var(--camera-scale, 1));
+  opacity: var(--door-opacity, 1);
+  will-change: transform, opacity;
+}
+
+.door-leaf {
+  transform-box: view-box;
+  transform-origin: 36px 200px;
+  transform: perspective(700px) rotateY(var(--door-angle, 0deg));
+  backface-visibility: hidden;
+}
+
+.door:focus-visible {
+  outline: 2px solid var(--glow);
+  outline-offset: 8px;
+  border-radius: 50%;
+}
+
+.door .wheel {
+  transform-origin: 200px 200px;
+  transform: rotate(var(--wheel-angle, 0deg));
+}
+
+.door.play .wheel {
+  animation: wheelSpin 2.2s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.door.play .locking-bars {
+  animation: barPulse 1.2s ease both;
+}
+
+.door.play .door-glow {
+  animation: doorLight 1.2s 1.5s ease both;
+}
+
+@keyframes wheelSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-540deg); }
+}
+
+@keyframes barPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .55; }
+}
+
+@keyframes doorLight {
+  from { opacity: 0; }
+  to { opacity: .8; }
+}
+
+/* SECTION STYLING */
+
+.section {
+  padding: 90px 0;
+  border-top: 1px solid var(--line);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 25px;
+  margin-bottom: 45px;
+}
+
+.section-heading h2 {
+  margin-bottom: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.section-heading p {
+  max-width: 38ch;
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+/* FEATURE CARDS */
+
+.items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.item {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 210px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: linear-gradient(145deg, #1b1427, #120d1a);
+  transition:
+    border-color .25s,
+    translate .25s,
+    background .25s;
+}
+
+.item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(139,77,255,.19),
+    transparent 42%
+  );
+  transition: opacity .3s ease;
+}
+
+.item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(135deg, #8b5cf61a, transparent 65%);
+  transition: opacity .3s;
+}
+
+.item:hover {
+  border-color: #7952bd;
+  translate: 0 -3px;
+}
+
+.item:hover::before,
+.item:hover::after { opacity: 1; }
+
+.item > * {
+  position: relative;
+  z-index: 1;
+}
+
+.item-number {
+  display: block;
+  margin-bottom: 22px;
+  color: var(--purple2);
+  font: .7rem var(--mono);
+  letter-spacing: .12em;
+}
+
+.item h3 {
+  margin-bottom: 9px;
+  font-size: 1.5rem;
+}
+
+.item p {
+  max-width: 46ch;
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: .93rem;
+}
+
+/* HOW IT WORKS */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.step {
+  padding: 25px 0;
+  border-top: 1px solid var(--line);
+}
+
+.step-number {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--purple2);
+  font: 800 2.8rem/1 var(--head);
+}
+
+.step h3 {
+  margin-bottom: 8px;
+  font-size: 1.3rem;
+}
+
+.step p {
+  max-width: 32ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: .93rem;
+}
+
+/* ENTRY OPTIONS */
+
+.entry-layout {
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  gap: 45px;
+  align-items: start;
+}
+
+.dial-column {
+  position: sticky;
+  top: 35px;
+}
+
+.dial {
+  display: block;
+  width: 100%;
+  max-width: 270px;
+  margin: auto;
+  filter: drop-shadow(0 15px 30px #0005);
+}
+
+.dial .rot {
+  transform-origin: 150px 150px;
+  transition: transform .9s cubic-bezier(.3,1.3,.4,1);
+}
+
+.dial-caption {
+  margin-top: 12px;
+  color: var(--muted);
+  text-align: center;
+  font: .7rem var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.picks {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 15px;
+  padding: 0;
+  border: 0;
+}
+
+.pick {
+  display: block;
+  width: 100%;
+  padding: 16px 19px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(23,17,31,.8);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .2s;
+}
+
+.pick:hover {
+  border-color: var(--purple);
+  transform: translateX(3px);
+}
+
+.pick[aria-selected="true"] {
+  border-color: var(--purple);
+  background: var(--plate2);
+  box-shadow: inset 3px 0 var(--purple);
+}
+
+.pick b {
+  display: block;
+  margin-bottom: 3px;
+  font: 700 1.02rem var(--head);
+}
+
+.pick span {
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.panel {
+  padding: 29px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(145deg, #1b1427, #120d1a);
+  animation: panelIn .3s ease both;
+}
+
+.panel[hidden] { display: none; }
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.panel h3 {
+  margin-bottom: 9px;
+  font-size: 1.55rem;
+}
+
+.panel p {
+  max-width: 60ch;
+  margin-bottom: 20px;
+  color: var(--muted);
+}
+
+.panel ol {
+  margin: 0 0 22px;
+  padding-left: 20px;
+  color: var(--muted);
+}
+
+.panel li { margin-bottom: 7px; }
+.panel li::marker { color: var(--purple2); }
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.msg {
+  min-height: 1.5em;
+  margin-top: 12px;
+  color: var(--glow);
+  font-size: .85rem;
+}
+
+.note {
+  margin-top: 22px;
+  padding-left: 13px;
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+  font-size: .83rem;
+}
+
+/* ROUTE FINDER */
+.finder { margin-bottom: 16px; }
+.finder:empty { display: none; }
+
+.fq, .fr {
+  padding: 24px; border: 1px solid var(--line); border-radius: 14px;
+  background: linear-gradient(145deg, #1b1427, #120d1a);
+  animation: panelIn .3s ease both;
+}
+.fq-prog { display: flex; gap: 6px; margin-bottom: 18px; }
+.fq-prog i {
+  flex: 1; height: 3px; border-radius: 2px; background: var(--steel);
+  transition: background .3s, box-shadow .3s;
+}
+.fq-prog i.done { background: var(--purple); }
+.fq-prog i.now { background: var(--purple2); box-shadow: 0 0 10px var(--purple2); }
+
+.fq-count, .fr-tag {
+  margin-bottom: 10px; color: var(--purple2);
+  font: 700 .66rem var(--mono); letter-spacing: .16em; text-transform: uppercase;
+}
+.fq-q { margin: 0 0 6px; font-size: 1.35rem; line-height: 1.2; outline: 0; }
+.fq-help { margin: 0 0 18px; color: var(--muted); font-size: .88rem; }
+
+.fq-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.fq-opt {
+  padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px;
+  background: rgba(23,17,31,.8); color: var(--text);
+  font: 700 .95rem var(--head); text-align: left; cursor: pointer;
+  transition: border-color .2s, background .2s, transform .2s;
+}
+.fq-opt:hover { border-color: var(--purple); background: var(--plate2); transform: translateY(-2px); }
+.fq-opt:focus-visible, .fq-link:focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; }
+
+.fq-nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.fq-link {
+  padding: 4px 0; border: 0; background: none; color: var(--muted);
+  font: 700 .72rem var(--mono); letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+}
+.fq-link:hover { color: var(--glow); }
+
+.fr h3 { margin: 0 0 4px; font-size: 1.5rem; }
+.fr-why { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.fr-why li { color: var(--muted); font-size: .88rem; }
+.fr-why b { color: var(--text); }
+
+.picks[hidden], .pick[hidden] { display: none; }
+.pick { position: relative; }
+.pick.best b { padding-right: 104px; }
+.pick.best::after {
+  content: "Best match";
+  position: absolute; top: 14px; right: 14px;
+  padding: 2px 8px; border-radius: 999px;
+  border: 1px solid var(--purple); background: rgba(139,92,246,.14);
+  color: var(--glow); font: 700 .6rem var(--mono);
+  letter-spacing: .1em; text-transform: uppercase;
+}
+@media (max-width: 580px) {
+  .pick.best b { padding-right: 0; }
+  .pick.best::after { position: static; display: inline-block; margin-top: 8px; }
+}
+
+/* FAQ */
+
+.faq {
+  max-width: 780px;
+  margin-left: auto;
+}
+
+details {
+  padding: 19px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+summary {
+  display: block;
+  position: relative;
+  padding-right: 30px;
+  color: var(--text);
+  font: 700 1.05rem var(--head);
+  cursor: pointer;
+  list-style: none;
+}
+
+summary::-webkit-details-marker { display: none; }
+
+summary::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: -3px;
+  color: var(--purple2);
+  font: 1.5rem var(--body);
+  transition: transform .25s;
+}
+
+details[open] summary::after { transform: rotate(45deg); }
+
+details[open] > p {
+  animation: faqAnswerIn .22s ease both;
+}
+
+@keyframes faqAnswerIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+details p {
+  max-width: 65ch;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: .93rem;
+}
+
+/* FOOTER + SCROLL */
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 25px 0 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.footer strong {
+  color: var(--text);
+  font-family: var(--head);
+}
+
+.footer-contact {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-contact a {
+  padding: 4px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(167, 122, 255, .06);
+  color: var(--glow);
+  text-decoration: none;
+  transition:
+    color .2s ease,
+    border-color .2s ease,
+    background .2s ease;
+}
+
+.footer-contact a:hover {
+  border-color: var(--purple);
+  background: rgba(167, 122, 255, .12);
+}
+
+.bar {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--purple2);
+  box-shadow: 0 0 12px #8b5cf6;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+html.js .rv {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .7s ease, transform .7s ease;
+  transition-delay: var(--delay, 0s);
+}
+
+html.js .rv.in {
+  opacity: 1;
+  transform: none;
+}
+
+html.js .rv.item {
+  transition:
+    opacity .7s ease var(--delay, 0s),
+    transform .7s ease var(--delay, 0s),
+    border-color .25s ease,
+    translate .25s ease,
+    background .25s ease;
+}
+
+.door-transition.door-stage {
+  position: relative;
+  height: 200vh;
+  overflow-x: visible;
+  overflow-y: clip;
+}
+
+.door-transition.door-stage .hero {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 40px 0;
+  align-items: center;
+}
+
+.door-transition.door-stage .hero-copy {
+  opacity: var(--hero-copy-opacity, 1);
+}
+
+.door-transition.door-stage + #inside {
+  position: relative;
+  z-index: 1;
+  margin-top: -100vh;
+  clip-path: circle(
+    var(--portal-radius, 0px) at
+    var(--portal-x, 50%) var(--portal-y, 50%)
+  );
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 800px) {
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding: 50px 0 70px;
+    gap: 35px;
+  }
+
+  .hero-visual { grid-row: 1; }
+  .door-transition.door-stage { height: auto; }
+  .door-transition.door-stage .hero {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 0;
+  }
+  .door-transition.door-stage + #inside { margin-top: 0; }
+  .door-wrapper { max-width: 390px; }
+  .hero-copy { text-align: center; }
+  .hero-copy .eyebrow,
+  .scroll-cue { justify-content: center; }
+  .hero .lead { margin-left: auto; margin-right: auto; }
+
+  .entry-layout {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .dial-column {
+    position: static;
+    max-width: 190px;
+    margin: auto;
+  }
+
+  .section { padding: 65px 0; }
+}
+
+@media (max-width: 580px) {
+  .wrap { padding: 25px 19px 45px; }
+  .hero h1 { font-size: clamp(3.3rem, 15vw, 5rem); }
+  .items { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; gap: 10px; }
+  .section-heading { display: block; }
+  .section-heading p { margin-top: 15px; }
+  .item { min-height: 0; }
+  .panel { padding: 22px; }
+  .boot-screen { padding: 25px; }
+  .boot-hint { top: 25px; right: 25px; }
+  .boot-brand { top: 25px; left: 25px; }
+}
+
+@media (hover: none) {
+  .item::before { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+
+  html.js .rv {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ================= UPGRADE LAYER ================= */
+:root{
+  --body:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+html{scrollbar-width:thin;scrollbar-color:#3a2e4d var(--bg)}
+::selection{background:#8b5cf6;color:#fff}
+body{font-feature-settings:"ss01","cv11";-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body::before{display:none}
+.wrap{position:relative;z-index:1}
+
+/* atmosphere */
+.fx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.fx canvas{position:absolute;inset:0;width:100%;height:100%}
+.fx::before{content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(180,140,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(180,140,255,.045) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 0%,#000,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 0%,#000,transparent 80%)}
+.grain{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+/* hero */
+.hero h1{text-shadow:0 2px 40px rgba(139,92,246,.18)}
+.hero .lead{color:#b9aecb}
+.scroll-cue{font-family:var(--mono)}
+
+/* buttons */
+.btn.alt,.btn.alt:hover{background:rgba(255,255,255,.03);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);border-color:var(--line)}
+.btn.alt:hover{background:rgba(139,92,246,.1);border-color:var(--purple)}
+
+/* surfaces with cursor-tracked border light */
+.item,.item:hover,.panel,.fq,.fr{border-color:transparent}
+.item,.panel,.fq,.fr{
+  background:linear-gradient(150deg,#1c1429,#110c19) padding-box,
+    radial-gradient(280px circle at var(--mx,-400px) var(--my,-400px),rgba(205,170,255,.95),rgba(139,92,246,.18) 55%,#2f2441 100%) border-box;
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 24px 50px -30px #000}
+.item{border-radius:18px}
+.item::before{background:radial-gradient(520px circle at var(--mouse-x,50%) var(--mouse-y,50%),rgba(139,92,246,.17),transparent 45%)}
+.item h3{font-size:1.6rem}
+
+/* sections */
+.section{border-top:0;position:relative}
+.section::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--line) 18%,rgba(190,150,255,.6) 50%,var(--line) 82%,transparent)}
+.step{position:relative;border-top:0;padding-top:30px}
+.step::before{content:"";position:absolute;top:0;left:0;height:1px;width:100%;background:var(--line)}
+.step::after{content:"";position:absolute;top:0;left:0;height:1px;width:0;background:linear-gradient(90deg,var(--purple2),transparent);box-shadow:0 0 12px var(--purple);transition:width .8s var(--ease)}
+.step:hover::after{width:100%}
+
+/* finder + options */
+.pick{border-radius:12px;background:rgba(23,17,31,.7);backdrop-filter:blur(8px);transition:border-color .25s,background .25s,transform .35s var(--ease),box-shadow .25s}
+.pick[aria-selected="true"]{box-shadow:inset 3px 0 var(--purple),0 0 40px -14px rgba(139,92,246,.7)}
+.fq-opt{border-radius:12px;transition:border-color .2s,background .2s,transform .3s var(--ease),box-shadow .2s}
+.fq-opt:hover{box-shadow:0 10px 26px -14px rgba(139,92,246,.8)}
+.fq-link,.fq-count,.fr-tag,.dial-caption{font-family:var(--mono)}
+.dial{filter:drop-shadow(0 20px 40px rgba(124,58,237,.28))}
+
+/* faq */
+details{transition:background .3s}
+details summary{transition:color .2s}
+details:hover summary{color:var(--glow)}
+details[open]{background:linear-gradient(90deg,rgba(139,92,246,.07),transparent 70%)}
+details[open] summary{color:var(--glow)}
+
+/* progress + dock */
+.bar{height:2px;background:linear-gradient(90deg,#6d3df5,#c9a8ff,#fff)}
+.dock{position:fixed;left:50%;bottom:22px;z-index:45;display:flex;gap:2px;padding:5px;border:1px solid rgba(167,122,255,.22);border-radius:999px;
+  background:rgba(16,11,25,.62);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  box-shadow:0 18px 40px -12px #000,inset 0 1px 0 rgba(255,255,255,.07);
+  transform:translate(-50%,24px);opacity:0;pointer-events:none;transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.dock.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.dock a{padding:8px 15px;border-radius:999px;color:var(--muted);text-decoration:none;font:500 .82rem var(--body);transition:color .2s,background .2s}
+.dock a:hover{color:var(--text)}
+.dock a.cur{color:#fff;background:rgba(139,92,246,.28);box-shadow:inset 0 0 0 1px rgba(167,122,255,.4)}
+.dock a:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
+
+/* boot + footer */
+.boot-screen::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.65))}
+.boot-console{text-shadow:0 0 12px rgba(167,122,255,.55)}
+.footer{border-top:0;position:relative;margin-top:10px}
+.footer::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent)}
+.footer-contact a{border-radius:999px;padding:5px 13px}
+@media (max-width:580px){.dock{bottom:12px;max-width:calc(100% - 20px)}.dock a{padding:8px 10px;font-size:.76rem}}
+@media (prefers-reduced-motion:reduce){.dock{transition:none}}
+
+/* ===== LENIS + GSAP + TSPARTICLES ===== */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+.fx::after{content:"";position:absolute;left:-350px;top:-350px;width:700px;height:700px;background:radial-gradient(circle,rgba(139,92,246,.17),transparent 65%);transform:translate3d(var(--cx,-2000px),var(--cy,-2000px),0);opacity:var(--ga,1);will-change:transform}
+html.js.gsap .rv,html.js.gsap .rv.in{opacity:0;transform:none;transition:none}
+html.js.gsap .rv.item,html.js.gsap .rv.item.in{transition:border-color .25s,translate .25s,background .25s}
+
+/* cleanup: focus states and footer clearance */
+.pick:focus-visible,.fq-opt:focus-visible,.fq-link:focus-visible,details summary:focus-visible,.tab:focus-visible{outline:2px solid var(--glow);outline-offset:3px}
+.footer{padding-bottom:calc(36px + 64px)}
+</style>
+</head>
+
+<body>
+
+<!-- TERMINAL BOOT -->
+<div class="boot-screen" id="boot-screen" aria-label="Simulated startup sequence" hidden>
+  <div class="boot-brand">THE WEB <span>VAULT</span></div>
+  <div class="boot-hint">Press ENTER to skip</div>
+  <div class="boot-console" id="boot-console" aria-live="polite"></div>
+</div>
+
+<div class="bar" id="bar"></div>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <div class="door-transition" id="door-transition">
+  <header class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Your next destination</div>
+      <h1 class="decrypt-heading" aria-label="The Web Vault.">
+        <span class="decrypt-line" data-text="The Web">The Web</span>
+        <span class="decrypt-line accent" data-text="Vault.">Vault.</span>
+      </h1>
+      <p class="lead">
+        A desktop-style WebOS, a library of games, and a browser built right in.
+        Everything you need, tucked behind one door.
+      </p>
+
+
+      <div class="scroll-cue" aria-hidden="true">
+        <span>Scroll to unlock</span>
+        <span class="scroll-cue-line"></span>
+      </div>
+
+    </div>
+
+    <div class="hero-visual" id="hero-visual">
+      <div class="door-wrapper" id="door-wrapper">
+        <svg class="door-tick-ring" viewBox="-220 -220 840 840"
+             aria-hidden="true">
+          <g id="door-ticks" stroke="#9b70df" stroke-width="2"
+             stroke-linecap="round"></g>
+        </svg>
+        <svg class="door" id="door" viewBox="-10 -10 420 420"
+             role="img" aria-label="Vault door."
+             tabindex="0">
+          <defs>
+            <radialGradient id="discGrad" cx=".38" cy=".32" r=".9">
+              <stop offset="0" stop-color="#2d1559"/>
+              <stop offset=".55" stop-color="#150a2b"/>
+              <stop offset="1" stop-color="#07040d"/>
+            </radialGradient>
+
+            <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#d4b8ff"/>
+              <stop offset=".45" stop-color="#8b4dff"/>
+              <stop offset="1" stop-color="#3b0f7a"/>
+            </linearGradient>
+
+            <radialGradient id="boltGrad" cx=".35" cy=".3" r=".8">
+              <stop offset="0" stop-color="#eadcff"/>
+              <stop offset=".5" stop-color="#8b4dff"/>
+              <stop offset="1" stop-color="#3b0f7a"/>
+            </radialGradient>
+
+            <radialGradient id="doorGlow">
+              <stop offset="0" stop-color="#d4b8ff"/>
+              <stop offset=".35" stop-color="#7c3aed"/>
+              <stop offset="1" stop-color="#0d0716" stop-opacity="0"/>
+            </radialGradient>
+
+            <filter id="softGlow">
+              <feGaussianBlur stdDeviation="9"/>
+            </filter>
+          </defs>
+
+          <!-- Outer frame -->
+          <circle cx="200" cy="200" r="197" fill="none"
+                  stroke="#2b1748" stroke-width="5"/>
+          <circle cx="200" cy="200" r="188" fill="none"
+                  stroke="url(#ringGrad)" stroke-width="3"/>
+          <circle class="door-backing" cx="200" cy="200" r="179" fill="url(#discGrad)"
+                  stroke="#5b21b6" stroke-width="2"/>
+
+          <g class="door-leaf" id="door-leaf">
+          <!-- Door plate -->
+          <circle cx="200" cy="200" r="164" fill="#110a1e"
+                  stroke="#281545" stroke-width="7"/>
+          <circle cx="200" cy="200" r="151" fill="none"
+                  stroke="#8b5cf6" stroke-opacity=".55" stroke-width="2"/>
+          <circle cx="200" cy="200" r="137" fill="none"
+                  stroke="#4c287c" stroke-width="2"/>
+
+          <!-- Glow beneath the wheel -->
+          <circle class="door-glow" cx="200" cy="200" r="140"
+                  fill="url(#doorGlow)" opacity="0"/>
+
+          <!-- Locking bars -->
+          <g class="locking-bars" fill="url(#ringGrad)"
+             stroke="#3b1b65" stroke-width="2">
+            <g transform="rotate(0 200 200)">
+              <rect x="190" y="45" width="20" height="42" rx="5"/>
+            </g>
+            <g transform="rotate(45 200 200)">
+              <rect x="190" y="45" width="20" height="42" rx="5"/>
+            </g>
+            <g transform="rotate(90 200 200)">
+              <rect x="190" y="45" width="20" height="42" rx="5"/>
+            </g>
+            <g transform="rotate(135 200 200)">
+              <rect x="190" y="45" width="20" height="42" rx="5"/>
+            </g>
+            <g transform="rotate(180 200 200)">
+              <rect x="190" y="45" width="20" height="42" rx="5"/>
+            </g>
+            <g transform="rotate(225 200 200)">
+              <rect x="190" y="45" width="20" height="42" rx="5"/>
+            </g>
+            <g transform="rotate(270 200 200)">
+              <rect x="190" y="45" width="20" height="42" rx="5"/>
+            </g>
+            <g transform="rotate(315 200 200)">
+              <rect x="190" y="45" width="20" height="42" rx="5"/>
+            </g>
+          </g>
+
+          <!-- Bolt ring -->
+          <g id="door-bolts"></g>
+
+          <!-- Central mechanism -->
+          <g class="wheel">
+            <circle cx="200" cy="200" r="105" fill="#170d27"
+                    stroke="url(#ringGrad)" stroke-width="5"/>
+            <circle cx="200" cy="200" r="91" fill="none"
+                    stroke="#5b21b6" stroke-width="2"/>
+
+            <g stroke="#a77aff" stroke-width="9" stroke-linecap="round">
+              <line x1="200" y1="124" x2="200" y2="276"/>
+              <line x1="134" y1="162" x2="266" y2="238"/>
+              <line x1="134" y1="238" x2="266" y2="162"/>
+            </g>
+
+            <g id="wheel-knobs" fill="url(#boltGrad)"
+               stroke="#2a1060" stroke-width="3"></g>
+
+            <circle cx="200" cy="200" r="44" fill="#0c0914"
+                    stroke="#d4b8ff" stroke-width="4"/>
+            <circle cx="200" cy="200" r="29" fill="#211235"
+                    stroke="#8b5cf6" stroke-width="3"/>
+            <circle cx="200" cy="200" r="12" fill="url(#ringGrad)"/>
+          </g>
+
+          <!-- Center highlight -->
+          <circle cx="200" cy="200" r="5" fill="#fff"
+                  opacity=".8"/>
+          </g>
+        </svg>
+
+      </div>
+    </div>
+  </header>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="section" id="inside">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">Inside the system</div>
+        <h2>More than a website.</h2>
+      </div>
+      <p>A complete desktop environment built to bring your favorite tools together.</p>
+    </div>
+
+    <div class="items">
+      <article class="item">
+        <span class="item-number">01 // ENVIRONMENT</span>
+        <h3>WebOS</h3>
+        <p>
+          A desktop-style workspace that runs inside your browser.
+          Launch apps, customize your setup, and make the Vault feel like your own computer.
+        </p>
+      </article>
+
+      <article class="item">
+        <span class="item-number">02 // ENTERTAINMENT</span>
+        <h3>Games library</h3>
+        <p>
+          Browse a collection of over 1000+ browser games and launch them directly
+          from the Games app without leaving your desktop.
+        </p>
+      </article>
+
+      <article class="item">
+        <span class="item-number">03 // CONNECTIVITY</span>
+        <h3>Vault Browser</h3>
+        <p>
+          A browser built on Scramjet, allowing all websites to load
+          through the Vault bypassing any device or network restrictions.
+        </p>
+      </article>
+
+      <article class="item">
+        <span class="item-number">04 // PERSONALIZATION</span>
+        <h3>Your setup</h3>
+        <p>
+          Customize your desktop, choose your apps, adjust settings,
+          and use fullscreen mode for a more immersive experience.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="start">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">Getting started</div>
+        <h2>Three steps. That's it.</h2>
+      </div>
+    </div>
+
+    <div class="steps">
+      <article class="step">
+        <span class="step-number">01</span>
+        <h3>Choose your route</h3>
+        <p>Pick the access method that works with your network and browser.</p>
+      </article>
+
+      <article class="step">
+        <span class="step-number">02</span>
+        <h3>Open the Vault</h3>
+        <p>Launch the page. The desktop environment handles the rest.</p>
+      </article>
+
+      <article class="step">
+        <span class="step-number">03</span>
+        <h3>Make yourself at home</h3>
+        <p>Open an app, customize your desktop, and start exploring.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ENTRY METHODS -->
+  <section class="section" id="enter">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">Access terminal</div>
+        <h2>Choose your way in.</h2>
+      </div>
+      <p>Different networks have different restrictions. Find the option that works for you.</p>
+    </div>
+
+    <div class="entry-layout">
+      <div class="dial-column" aria-hidden="true">
+        <svg class="dial" viewBox="0 0 300 300">
+          <circle cx="150" cy="150" r="142" fill="#120d1b"
+                  stroke="#3a2e4d" stroke-width="3"/>
+          <g class="rot" id="dial-rot">
+            <circle cx="150" cy="150" r="118" fill="#1b1428"
+                    stroke="#8b5cf6" stroke-width="2"/>
+            <g id="dial-ticks" stroke="#6b4fb0" stroke-width="2"></g>
+            <circle cx="150" cy="32" r="9" fill="#8b5cf6"/>
+            <circle cx="268" cy="150" r="9" fill="#2b2238"
+                    stroke="#6b4fb0" stroke-width="2"/>
+            <circle cx="150" cy="268" r="9" fill="#2b2238"
+                    stroke="#6b4fb0" stroke-width="2"/>
+            <circle cx="32" cy="150" r="9" fill="#2b2238"
+                    stroke="#6b4fb0" stroke-width="2"/>
+            <circle cx="150" cy="150" r="52" fill="#0c0914"
+                    stroke="#8b5cf6" stroke-width="2"/>
+            <rect x="144" y="112" width="12" height="76" rx="6"
+                  fill="#8b5cf6"/>
+            <rect x="112" y="144" width="76" height="12" rx="6"
+                  fill="#8b5cf6"/>
+          </g>
+          <path d="M150 0 L142 16 L158 16 Z" fill="#c4b5fd"/>
+        </svg>
+        <div class="dial-caption" id="dial-caption">Standard access</div>
+      </div>
+
+      <div>
+        <div class="finder" id="finder" aria-live="polite"></div>
+        <div class="picks" role="tablist" aria-label="Choose an access method">
+          <button class="pick" role="tab" id="t0"
+                  aria-controls="p0" aria-selected="false" data-i="0">
+            <b>I only have CodeHS</b>
+            <span>Join the Vault class on CodeHS.</span>
+          </button>
+
+          <button class="pick" role="tab" id="t1"
+                  aria-controls="p1" aria-selected="false" data-i="1">
+            <b>My network blocks the site, but about:blank still loads</b>
+            <span>Opens the Vault inside an about:blank tab.</span>
+          </button>
+
+          <button class="pick" role="tab" id="t2"
+                  aria-controls="p2" aria-selected="false" data-i="2">
+            <b>I can host or run an HTML file</b>
+            <span>Download a one-file launcher and put it anywhere.</span>
+          </button>
+
+          <button class="pick" role="tab" id="t3"
+                  aria-controls="p3" aria-selected="true" data-i="3">
+            <b>I can access Google Docs</b>
+            <span>Recommended — works best if you can access Google Docs.</span>
+          </button>
+        </div>
+
+        <section class="panel" role="tabpanel" id="p0" aria-labelledby="t0" hidden>
+          <h3>Join the CodeHS class</h3>
+          <p>If CodeHS is the one thing your school lets through, join the Vault class and open it from there.</p>
+          <ol>
+            <li>Open the class invite below.</li>
+            <li>Sign in to CodeHS, or create a free account.</li>
+            <li>Accept the invite to join the class.</li>
+            <li>Open the Vault project from your class assignments.</li>
+          </ol>
+          <a class="btn" href="https://codehs.com/go/6F75D"
+             target="_blank" rel="noopener">Join the class ↗</a>
+        </section>
+
+        <section class="panel" role="tabpanel" id="p1"
+                 aria-labelledby="t1" hidden>
+          <h3>Open in about:blank</h3>
+          <p>
+            This opens a blank tab and loads the Vault inside it,
+            so the address bar shows about:blank instead of the site.
+          </p>
+          <button class="btn" id="cloak">Open in about:blank ↗</button>
+          <div class="msg" id="cloakmsg" aria-live="polite"></div>
+          <div class="note">
+            If nothing opens, your browser blocked the pop-up.
+            Allow pop-ups for this page and try again.
+          </div>
+        </section>
+
+        <section class="panel" role="tabpanel" id="p2"
+                 aria-labelledby="t2" hidden>
+          <h3>Use a hosted HTML file</h3>
+          <p>
+            Download the launcher, then upload it to any place that serves HTML
+            or open it directly from your computer.
+          </p>
+          <div class="row">
+            <button class="btn" id="dl">Download Vault.html ↓</button>
+            <button class="btn alt" data-copy="launcher">Copy the code</button>
+          </div>
+          <div class="msg" id="dlmsg" aria-live="polite"></div>
+          <div class="note">
+            The file contains a full-screen frame pointing at thewebvault.org.
+            If the frame stays blank, the network is blocking the site itself
+            and this method won't help.
+          </div>
+        </section>
+
+        <section class="panel" role="tabpanel" id="p3" aria-labelledby="t3">
+          <h3>Open through Google Docs</h3>
+          <p>Open the shared document and launch the Web Vault add-on from its Extensions menu.</p>
+          <a class="btn" href="https://docs.google.com/document/d/13lPWnpJnKWtHo1T5QB4a9HzmVLmOKnoUpKv9lXClY-A/edit?usp=sharing" target="_blank" rel="noopener">Open the Docs add-on ↗</a>
+          <div class="note">Access depends on the document's sharing permissions and the Google account you use.</div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="section-heading">
+      <div>
+        <div class="eyebrow">Support // FAQ</div>
+        <h2>Questions?</h2>
+      </div>
+      <p>Quick answers if something doesn't load or you're not sure where to start.</p>
+    </div>
+
+    <div class="faq">
+      <details>
+        <summary>Which option should I try first?</summary>
+        <p>
+          If you have access to the shared Google Doc, try the Docs add-on first.
+          Otherwise, try about:blank, then the hosted HTML file, then the CodeHS class.
+          Once you find the one that works, bookmark it.
+        </p>
+      </details>
+
+      <details>
+        <summary>The frame stays blank. What now?</summary>
+        <p>
+          A blank frame usually means your network is blocking thewebvault.org itself.
+          Reload once to rule out a hiccup, then try a different option.
+          If none of them load, the block may be affecting the whole site.
+        </p>
+      </details>
+
+      <details>
+        <summary>What is the Browser app?</summary>
+        <p>
+          It's a browser inside WebOS, built on Scramjet.
+          Pages are fetched and rewritten through the Vault before being shown.
+          Heavy sites with logins, video, or bot checks can be hit or miss.
+        </p>
+      </details>
+
+      <details>
+        <summary>Do I need to install anything?</summary>
+        <p>
+          No. The Vault is a website, so there's no download, extension, or setup.
+          Open it in an up-to-date browser and it runs in the tab.
+        </p>
+      </details>
+
+      <details>
+        <summary>Can I use it fullscreen?</summary>
+        <p>
+          Yes. The Vault has a fullscreen option.
+          Press Escape to leave fullscreen at any time.
+        </p>
+      </details>
+
+      <details>
+        <summary>How do I join the CodeHS class?</summary>
+        <p>
+          Choose "I only have CodeHS" above and press Join the class.
+          Sign in or create an account, accept the invite, and open the Vault project.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <strong>The Web Vault</strong>
+    <span>Designed to be explored.</span>
+    <div class="footer-contact">
+      <span>Contact me:</span>
+      <a href="mailto:ashur.nichols@gmail.com">Email</a>
+      <a href="https://www.instagram.com/ashurn_/" target="_blank" rel="noopener noreferrer">Instagram</a>
+    </div>
+    <a href="https://thewebvault.org" target="_blank" rel="noopener">thewebvault.org ↗</a>
+  </footer>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var SITE = "https://thewebvault.org";
+  var CODEHS = "https://codehs.com/go/6F75D";
+
+  var $ = function (selector) {
+    return document.querySelector(selector);
+  };
+
+  var $$ = function (selector) {
+    return Array.prototype.slice.call(
+      document.querySelectorAll(selector)
+    );
+  };
+
+  var reduce = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* --------------------------------
+     TERMINAL BOOT SEQUENCE
+  -------------------------------- */
+
+  var bootScreen = $("#boot-screen");
+  var bootConsole = $("#boot-console");
+  var skippedBoot = false;
+  var bootTimers = [];
+
+  var bootSequence = [
+    { text: "INITIALIZING VAULT ENVIRONMENT...", delay: 180 },
+    { text: "MOUNTING VIRTUAL FILESYSTEM...", delay: 230 },
+    { text: "LOADING WEBOS COMPONENTS...", delay: 260 },
+    { text: "CHECKING BROWSER COMPATIBILITY...", delay: 230 },
+    { text: "ESTABLISHING SYSTEM CONNECTION...", delay: 320 },
+    { text: "LOADING USER INTERFACE...", delay: 250 },
+    { text: "ALL SYSTEMS OPERATIONAL.", style: "success", delay: 350 },
+    { text: "WELCOME TO THE WEB VAULT.", style: "success", delay: 300 }
+  ];
+
+  function decryptHeading() {
+    if (reduce) return;
+
+    var lines = $$(".decrypt-line");
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+    var animations = [];
+
+    lines.forEach(function (line, lineIndex) {
+      var original = line.getAttribute("data-text");
+      line.textContent = "";
+
+      original.split("").forEach(function (letter, charIndex) {
+        var span = document.createElement("span");
+        span.className = "char";
+        span.textContent = letter === " " ? "\u00A0" : chars[0];
+        span.dataset.final = letter;
+        line.appendChild(span);
+        animations.push({
+          element: span,
+          final: letter,
+          start: lineIndex * 150 + charIndex * 18
+        });
+      });
+    });
+
+    var startTime = performance.now();
+    var duration = 780;
+
+    function animate(now) {
+      var elapsed = now - startTime;
+      var finished = true;
+
+      animations.forEach(function (item) {
+        if (item.element.classList.contains("resolved")) return;
+
+        var progress = elapsed - item.start;
+
+        if (item.final === " ") {
+          item.element.textContent = "\u00A0";
+          item.element.classList.add("resolved");
+          return;
+        }
+
+        if (progress >= duration) {
+          item.element.textContent = item.final;
+          item.element.classList.add("resolved");
+          return;
+        }
+
+        finished = false;
+
+        if (progress > 0) {
+          item.element.textContent =
+            chars[Math.floor(Math.random() * chars.length)];
+        }
+      });
+
+      if (!finished) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  function endBoot() {
+    if (skippedBoot) return;
+    skippedBoot = true;
+
+    bootTimers.forEach(clearTimeout);
+    bootScreen.classList.add("hidden");
+
+    setTimeout(function () {
+      if (bootScreen.parentNode) bootScreen.remove();
+    }, 700);
+
+    setTimeout(decryptHeading, 150);
+  }
+
+  function printBootLine(index) {
+    if (skippedBoot) return;
+
+    if (index >= bootSequence.length) {
+      bootTimers.push(setTimeout(endBoot, 500));
+      return;
+    }
+
+    var step = bootSequence[index];
+    var line = document.createElement("p");
+
+    line.className = "boot-line " + (step.style || "");
+    line.textContent = "> " + step.text;
+    bootConsole.appendChild(line);
+
+    var jitter = Math.random() * 70;
+    bootTimers.push(setTimeout(function () {
+      printBootLine(index + 1);
+    }, step.delay + jitter));
+  }
+
+  bootScreen.addEventListener("click", endBoot);
+
+  window.addEventListener("keydown", function (event) {
+    if (!skippedBoot &&
+        (event.key === "Enter" || event.key === " " || event.key === "Escape")) {
+      event.preventDefault();
+      endBoot();
+    }
+  });
+
+  var shouldPlayBoot = !reduce;
+
+  if (shouldPlayBoot) {
+    try {
+      if (window.sessionStorage.getItem("vaultBootPlayed") === "true") {
+        shouldPlayBoot = false;
+      } else {
+        window.sessionStorage.setItem("vaultBootPlayed", "true");
+      }
+    } catch (error) {
+      console.warn("Could not save boot sequence state for this session.", error);
+    }
+  }
+
+  if (shouldPlayBoot) {
+    bootScreen.hidden = false;
+    bootTimers.push(setTimeout(function () {
+      printBootLine(0);
+    }, 250));
+  } else {
+    endBoot();
+  }
+
+  /* --------------------------------
+     VAULT DOOR DETAILS
+  -------------------------------- */
+
+  var NS = "http://www.w3.org/2000/svg";
+
+  function svgElement(tag, attrs, parent) {
+    var element = document.createElementNS(NS, tag);
+
+    Object.keys(attrs).forEach(function (key) {
+      element.setAttribute(key, attrs[key]);
+    });
+
+    parent.appendChild(element);
+    return element;
+  }
+
+  // Outer tick marks
+  var doorTicks = $("#door-ticks");
+
+  for (var i = 0; i < 48; i++) {
+    var angle = i * 7.5;
+    var inner = i % 4 === 0 ? 260 : 264;
+    var outer = 270;
+
+    var tick = svgElement("line", {
+      x1: 200,
+      y1: 200 - inner,
+      x2: 200,
+      y2: 200 - outer,
+      transform: "rotate(" + angle + " 200 200)",
+      opacity: i % 4 === 0 ? ".9" : ".45",
+      "stroke-width": i % 4 === 0 ? "2.5" : "1.2"
+    }, doorTicks);
+  }
+
+  // Outer bolts
+  var doorBolts = $("#door-bolts");
+  var boltData = [];
+
+  for (var j = 0; j < 12; j++) {
+    var boltAngle = j * 30 * Math.PI / 180;
+    var bx = 200 + Math.sin(boltAngle) * 151;
+    var by = 200 - Math.cos(boltAngle) * 151;
+
+    var bolt = svgElement("circle", {
+      cx: bx.toFixed(2),
+      cy: by.toFixed(2),
+      r: 7,
+      fill: "url(#boltGrad)",
+      stroke: "#2a1060",
+      "stroke-width": 2
+    }, doorBolts);
+
+    boltData.push({ element: bolt, angle: boltAngle });
+  }
+
+  // Wheel knobs
+  var wheelKnobs = $("#wheel-knobs");
+
+  for (var k = 0; k < 6; k++) {
+    var knobAngle = k * Math.PI / 3;
+    var kx = 200 + Math.sin(knobAngle) * 87;
+    var ky = 200 - Math.cos(knobAngle) * 87;
+
+    svgElement("circle", {
+      cx: kx.toFixed(2),
+      cy: ky.toFixed(2),
+      r: 9,
+      fill: "url(#boltGrad)",
+      stroke: "#2a1060",
+      "stroke-width": 2
+    }, wheelKnobs);
+  }
+
+  /* --------------------------------
+     DOOR INTERACTION
+  -------------------------------- */
+
+  var door = $("#door");
+  var doorTickRing = $(".door-tick-ring");
+  var doorLeaf = $("#door-leaf");
+  var doorBacking = $(".door-backing");
+  var doorTransition = $("#door-transition");
+  var inside = $("#inside");
+  var hero = $(".hero");
+  var heroCopy = $(".hero-copy");
+  var heroVisual = $("#hero-visual");
+  var doorWrapper = $("#door-wrapper");
+  var lockingBars = $(".locking-bars");
+  var doorStageQuery = window.matchMedia("(min-width: 801px)");
+
+  function updateDoorStage() {
+    doorTransition.classList.toggle(
+      "door-stage",
+      !reduce && doorStageQuery.matches
+    );
+  }
+
+  updateDoorStage();
+  doorStageQuery.addEventListener("change", updateDoorStage);
+
+  function replayDoor() {
+    door.classList.remove("play");
+    void door.getBoundingClientRect();
+    door.classList.add("play");
+  }
+
+  door.addEventListener("click", replayDoor);
+
+  door.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      replayDoor();
+    }
+  });
+
+  // 3D mouse tilt
+  if (!reduce && window.matchMedia("(hover: hover)").matches) {
+    heroVisual.addEventListener("mousemove", function (event) {
+      var rect = heroVisual.getBoundingClientRect();
+
+      var x = (event.clientX - rect.left) / rect.width;
+      var y = (event.clientY - rect.top) / rect.height;
+
+      var xPct = (x - .5) * 2;
+      var yPct = (y - .5) * 2;
+
+      doorWrapper.style.setProperty(
+        "--door-tilt-x",
+        (yPct * -9) + "deg"
+      );
+      doorWrapper.style.setProperty(
+        "--door-tilt-y",
+        (xPct * 9) + "deg"
+      );
+    });
+
+    heroVisual.addEventListener("mouseleave", function () {
+      doorWrapper.style.setProperty("--door-tilt-x", "0deg");
+      doorWrapper.style.setProperty("--door-tilt-y", "0deg");
+    });
+  }
+
+  /* --------------------------------
+     CARD MOUSE SPOTLIGHT
+  -------------------------------- */
+
+  if (window.matchMedia("(hover: hover)").matches) {
+    $$(".item").forEach(function (item) {
+      item.addEventListener("mousemove", function (event) {
+        var rect = item.getBoundingClientRect();
+
+        item.style.setProperty(
+          "--mouse-x",
+          (event.clientX - rect.left) + "px"
+        );
+
+        item.style.setProperty(
+          "--mouse-y",
+          (event.clientY - rect.top) + "px"
+        );
+      });
+    });
+  }
+
+  /* --------------------------------
+     SCROLL PROGRESS + DOOR OPENING
+  -------------------------------- */
+
+  var bar = $("#bar");
+  var scrollTicking = false;
+
+  function onScroll() {
+    if (scrollTicking) return;
+    scrollTicking = true;
+
+    requestAnimationFrame(function () {
+      var y = window.pageYOffset;
+      var height = document.documentElement.scrollHeight - window.innerHeight;
+
+      bar.style.transform =
+        "scaleX(" + (height > 0 ? Math.min(1, y / height) : 0) + ")";
+
+      var progress = 0;
+      var doorStageActive =
+        !reduce && doorTransition.classList.contains("door-stage");
+
+      if (doorStageActive) {
+        var scrollDistance = Math.max(
+          1,
+          doorTransition.offsetHeight - window.innerHeight
+        );
+        progress = Math.max(0, Math.min(
+          1,
+          (y - doorTransition.offsetTop) / scrollDistance
+        ));
+      }
+
+      hero.style.pointerEvents =
+        doorStageActive && progress >= .8 ? "none" : "";
+
+      doorTransition.style.setProperty(
+        "--door-progress",
+        progress.toFixed(3)
+      );
+
+      var centerProgress = Math.max(0, Math.min(1, progress / .55));
+      centerProgress = centerProgress * centerProgress *
+        (3 - 2 * centerProgress);
+      var visualRect = heroVisual.getBoundingClientRect();
+      var doorShiftX = (window.innerWidth / 2 -
+        (visualRect.left + visualRect.width / 2)) * centerProgress;
+      var doorShiftY = (window.innerHeight / 2 -
+        (visualRect.top + visualRect.height / 2)) * centerProgress;
+      doorWrapper.style.setProperty(
+        "--door-shift-x",
+        doorShiftX.toFixed(1) + "px"
+      );
+      doorWrapper.style.setProperty(
+        "--door-shift-y",
+        doorShiftY.toFixed(1) + "px"
+      );
+
+      heroCopy.style.opacity = doorStageActive
+        ? Math.max(0, 1 - progress / .16).toFixed(2)
+        : "";
+      doorBacking.style.opacity = doorStageActive
+        ? (1 - progress / .55).toFixed(2)
+        : "";
+
+      if (doorStageActive) {
+        var insideRect = inside.getBoundingClientRect();
+        var portalX = visualRect.left + visualRect.width / 2 +
+          doorShiftX - insideRect.left;
+        var portalY = visualRect.top + visualRect.height / 2 +
+          doorShiftY - insideRect.top;
+        var farthestX = Math.max(portalX, insideRect.width - portalX);
+        var farthestY = Math.max(portalY, insideRect.height - portalY);
+        var portalRadius = (Math.hypot(farthestX, farthestY) + 2) *
+          Math.pow(progress, 1.15) * 1.12;
+
+        inside.style.setProperty("--portal-x", portalX.toFixed(1) + "px");
+        inside.style.setProperty("--portal-y", portalY.toFixed(1) + "px");
+        inside.style.setProperty(
+          "--portal-radius",
+          portalRadius.toFixed(1) + "px"
+        );
+      } else {
+        inside.style.removeProperty("--portal-x");
+        inside.style.removeProperty("--portal-y");
+        inside.style.removeProperty("--portal-radius");
+        inside.style.removeProperty("clip-path");
+      }
+
+      doorLeaf.style.setProperty(
+        "--door-angle",
+        (-progress * 110).toFixed(2) + "deg"
+      );
+      var cameraProgress = Math.max(0, Math.min(1, (progress - .48) / .52));
+      cameraProgress *= cameraProgress;
+      var doorFadeProgress = Math.max(
+        0,
+        Math.min(1, (progress - .58) / .22)
+      );
+      doorFadeProgress = doorFadeProgress * doorFadeProgress *
+        (3 - 2 * doorFadeProgress);
+      var tickFadeProgress = Math.max(
+        0,
+        Math.min(1, (progress - .42) / .18)
+      );
+      tickFadeProgress = tickFadeProgress * tickFadeProgress *
+        (3 - 2 * tickFadeProgress);
+      doorTickRing.style.setProperty(
+        "--tick-ring-opacity",
+        (1 - tickFadeProgress).toFixed(2)
+      );
+      door.style.setProperty(
+        "--camera-scale",
+        (1 + cameraProgress * 5).toFixed(3)
+      );
+      door.style.setProperty(
+        "--door-opacity",
+        (1 - doorFadeProgress).toFixed(2)
+      );
+      door.style.setProperty(
+        "--wheel-angle",
+        (-progress * 180).toFixed(2) + "deg"
+      );
+      lockingBars.style.opacity = (1 - progress * .55).toFixed(2);
+
+      boltData.forEach(function (item) {
+        var radius = 151 + progress * 14;
+        item.element.setAttribute(
+          "cx",
+          (200 + Math.sin(item.angle) * radius).toFixed(2)
+        );
+        item.element.setAttribute(
+          "cy",
+          (200 - Math.cos(item.angle) * radius).toFixed(2)
+        );
+        item.element.setAttribute("opacity", (1 - progress * .55).toFixed(2));
+      });
+
+      scrollTicking = false;
+    });
+  }
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll, { passive: true });
+  onScroll();
+
+  /* --------------------------------
+     SCROLL REVEALS
+  -------------------------------- */
+
+  var revealElements = $$(".section-heading, .item, .step, .entry-layout, details, .footer");
+
+  if (!reduce && "IntersectionObserver" in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: .12 });
+
+    revealElements.forEach(function (element, index) {
+      element.classList.add("rv");
+      element.style.setProperty(
+        "--delay",
+        ((index % 4) * .07) + "s"
+      );
+      observer.observe(element);
+    });
+  }
+
+  /* --------------------------------
+     ACCESS DIAL
+  -------------------------------- */
+
+  var dialTicks = $("#dial-ticks");
+
+  for (var t = 0; t < 60; t++) {
+    var a = t * 6 * Math.PI / 180;
+    var r1 = t % 5 === 0 ? 98 : 104;
+    var r2 = 108;
+
+    svgElement("line", {
+      x1: (150 + r1 * Math.sin(a)).toFixed(1),
+      y1: (150 - r1 * Math.cos(a)).toFixed(1),
+      x2: (150 + r2 * Math.sin(a)).toFixed(1),
+      y2: (150 - r2 * Math.cos(a)).toFixed(1)
+    }, dialTicks);
+  }
+
+  var tabs = $$(".pick");
+  var labels = [
+    "CodeHS access",
+    "about:blank",
+    "HTML launcher",
+    "Standard access"
+  ];
+
+  function selectTab(index) {
+    tabs.forEach(function (button, i) {
+      var selected = i === index;
+
+      button.setAttribute("aria-selected", String(selected));
+      $("#p" + i).hidden = !selected;
+      $("#p" + i).setAttribute("aria-hidden", String(!selected));
+    });
+
+    $("#dial-rot").style.transform =
+      "rotate(" + (-90 * index) + "deg)";
+
+    $("#dial-caption").textContent = labels[index];
+  }
+
+  tabs.forEach(function (button, index) {
+    button.addEventListener("click", function () {
+      selectTab(index);
+    });
+
+    button.addEventListener("keydown", function (event) {
+      var next = -1;
+
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+        next = stepTab(index, 1);
+      }
+
+      if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+        next = stepTab(index, -1);
+      }
+
+      if (next >= 0) {
+        event.preventDefault();
+        selectTab(next);
+        tabs[next].focus();
+      }
+    });
+  });
+
+  /* --------------------------------
+     ACCESS INTERVIEW
+  -------------------------------- */
+
+  var NAMES = ["CodeHS", "about:blank", "HTML launcher", "Google Docs"];
+  var ORDER = [3, 1, 2, 0];
+
+  var QUESTIONS = [
+    { id: "vault", q: "What happens when you open thewebvault.org directly?",
+      help: "Type it into the address bar on the device you'll use.",
+      opts: [["loads", "It loads"], ["blocked", "It's blocked"], ["?", "Haven't tried"]] },
+    { id: "docs", q: "Can you open Google Docs on this device?",
+      help: "docs.google.com opens normally and you can sign in.",
+      opts: [["yes", "Yes"], ["no", "No"], ["?", "Not sure"]] },
+    { id: "codehs", q: "Does your school use CodeHS to teach programming?",
+      help: "You can open codehs.com and log in.",
+      opts: [["yes", "Yes"], ["no", "No"], ["?", "Not sure"]] },
+    { id: "html", q: "Can you open an HTML file on this device?",
+      help: "From your downloads, or from a site that hosts files you upload.",
+      opts: [["yes", "Yes"], ["no", "No"], ["?", "Not sure"]] }
+  ];
+
+  var SCORES = {
+    vault:  { loads:   [0, 4, 2, 0],  blocked: [1, 2, 0, 2],  "?": [0, 1, 1, 0] },
+    docs:   { yes:     [0, 0, 0, 3],  no:      [0, 0, 0, -99], "?": [0, 0, 0, 1] },
+    codehs: { yes:     [3, 0, 0, 0],  no:      [-99, 0, 0, 0], "?": [1, 0, 0, 0] },
+    html:   { yes:     [0, 0, 2, 0],  no:      [0, 0, -99, 0], "?": [0, 0, 0, 0] }
+  };
+
+  var WHY = [
+    function (a) { return a.codehs === "yes" ? "Your school teaches programming with CodeHS, so this is the most reliable route." : "CodeHS might be open. Worth a try."; },
+    function (a) {
+      return a.vault === "loads" ? "The Vault loads directly, so an about:blank tab is the cleanest launch."
+        : a.vault === "blocked" ? "An about:blank tab can get through when the address itself is what gets filtered."
+        : "It needs nothing except pop-ups allowed.";
+    },
+    function (a) { return a.html === "yes" ? "You can open HTML files, so a one-file launcher will run." : "Worth trying if you can open files."; },
+    function (a) { return a.docs === "yes" ? "Google Docs opens for you, and it usually survives strict filters." : "Google Docs might be open. Worth a try."; }
+  ];
+
+  var finder = $("#finder");
+  var picksEl = $(".picks");
+  var answers = {};
+  var qi = 0;
+
+  function node(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function stepTab(from, dir) {
+    var n = from;
+    do { n = (n + dir + tabs.length) % tabs.length; } while (tabs[n].hidden && n !== from);
+    return n;
+  }
+
+  function turnDial(turns, caption) {
+    $("#dial-rot").style.transform = "rotate(" + (-90 * turns) + "deg)";
+    $("#dial-caption").textContent = caption;
+  }
+
+  function startFinder(focus) {
+    answers = {};
+    qi = 0;
+    picksEl.hidden = true;
+    tabs.forEach(function (t) {
+      t.hidden = false;
+      t.classList.remove("best");
+      t.setAttribute("aria-selected", "false");
+    });
+    $$(".panel").forEach(function (p) { p.hidden = true; });
+    turnDial(0, "Access interview");
+    renderQuestion(focus);
+  }
+
+  function renderQuestion(focus) {
+    var Q = QUESTIONS[qi];
+    var box = node("div", "fq");
+
+    var prog = node("div", "fq-prog");
+    prog.setAttribute("aria-hidden", "true");
+    QUESTIONS.forEach(function (_, i) {
+      prog.appendChild(node("i", i < qi ? "done" : i === qi ? "now" : ""));
+    });
+
+    var title = node("h3", "fq-q", Q.q);
+    title.id = "fq-title";
+    title.tabIndex = -1;
+
+    var opts = node("div", "fq-opts");
+    opts.setAttribute("role", "group");
+    opts.setAttribute("aria-labelledby", "fq-title");
+    Q.opts.forEach(function (o) {
+      var b = node("button", "fq-opt", o[1]);
+      b.type = "button";
+      b.addEventListener("click", function () { answer(Q.id, o[0]); });
+      opts.appendChild(b);
+    });
+
+    var nav = node("div", "fq-nav");
+    if (qi > 0) {
+      var back = node("button", "fq-link", "\u2190 Back");
+      back.type = "button";
+      back.addEventListener("click", function () {
+        qi--;
+        delete answers[QUESTIONS[qi].id];
+        turnDial(qi, qi ? "Tumbler " + (qi + 1) + " / " + QUESTIONS.length : "Access interview");
+        renderQuestion(true);
+      });
+      nav.appendChild(back);
+    } else {
+      nav.appendChild(node("span"));
+    }
+    var all = node("button", "fq-link", "Skip: show all options");
+    all.type = "button";
+    all.addEventListener("click", function () {
+      finder.textContent = "";
+      showPicks(null);
+      selectTab(3);
+    });
+    nav.appendChild(all);
+
+    box.appendChild(prog);
+    box.appendChild(node("div", "fq-count", "Question " + (qi + 1) + " of " + QUESTIONS.length));
+    box.appendChild(title);
+    box.appendChild(node("p", "fq-help", Q.help));
+    box.appendChild(opts);
+    box.appendChild(nav);
+
+    finder.textContent = "";
+    finder.appendChild(box);
+    if (focus) title.focus();
+  }
+
+  function answer(id, value) {
+    answers[id] = value;
+    qi++;
+    if (qi < QUESTIONS.length) {
+      turnDial(qi, "Tumbler " + (qi + 1) + " / " + QUESTIONS.length);
+      renderQuestion(true);
+    } else {
+      showResult();
+    }
+  }
+
+  function recommend() {
+    if (answers.codehs === "yes") return { picks: [0], top: 5 };
+
+    var s = [0, 0, 0, 0];
+    QUESTIONS.forEach(function (q) {
+      SCORES[q.id][answers[q.id]].forEach(function (v, i) { s[i] += v; });
+    });
+    var ranked = ORDER.slice().sort(function (a, b) {
+      return s[b] - s[a] || ORDER.indexOf(a) - ORDER.indexOf(b);
+    });
+    var top = s[ranked[0]];
+    if (top <= 0) return { picks: [], top: top };
+    var picks = ranked.filter(function (i) { return s[i] > 0 && s[i] >= top - 2; }).slice(0, 2);
+    return { picks: picks, top: top };
+  }
+
+  function showPicks(only) {
+    picksEl.hidden = false;
+    tabs.forEach(function (t, i) {
+      t.hidden = !!only && only.indexOf(i) < 0;
+      t.classList.toggle("best", !!only && i === only[0]);
+    });
+  }
+
+  function showResult() {
+    var r = recommend();
+    var box = node("div", "fr");
+    var tag, head, sub;
+
+    if (!r.picks.length) {
+      tag = "No clear route";
+      head = "Nothing looks workable.";
+      sub = "That usually means this network blocks the Vault and everything it can be reached through. Try another network or device, or review every option in case an answer was off.";
+    } else {
+      tag = r.top >= 5 ? "Strong match" : r.top >= 3 ? "Good match" : "Best guess";
+      head = r.picks.length === 1 ? "One route fits." : "Two routes fit.";
+      sub = r.top >= 3 ? "" : "Your answers left a lot open, so try the second one if the first doesn't work.";
+    }
+
+    box.appendChild(node("div", "fr-tag", tag));
+    box.appendChild(node("h3", null, head));
+    if (sub) box.appendChild(node("p", "fq-help", sub));
+
+    if (r.picks.length) {
+      var ul = node("ul", "fr-why");
+      r.picks.forEach(function (i) {
+        var li = node("li");
+        li.appendChild(node("b", null, NAMES[i] + ": "));
+        li.appendChild(document.createTextNode(WHY[i](answers)));
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    }
+
+    var nav = node("div", "fq-nav");
+    var again = node("button", "fq-link", "\u21BB Retake");
+    again.type = "button";
+    again.addEventListener("click", function () { startFinder(true); });
+    var all = node("button", "fq-link", "Show all 4 options");
+    all.type = "button";
+    all.addEventListener("click", function () { showPicks(null); all.remove(); });
+    nav.appendChild(again);
+    if (r.picks.length) nav.appendChild(all);
+    box.appendChild(nav);
+
+    finder.textContent = "";
+    finder.appendChild(box);
+
+    if (r.picks.length) {
+      showPicks(r.picks);
+      selectTab(r.picks[0]);
+    } else {
+      picksEl.hidden = true;
+      turnDial(0, "No route");
+      var showAllBtn = node("button", "fq-link", "Show all 4 options");
+      showAllBtn.type = "button";
+      showAllBtn.addEventListener("click", function () { showPicks(null); selectTab(3); });
+      nav.replaceChild(showAllBtn, nav.lastChild === again ? nav.appendChild(node("span")) : nav.lastChild);
+    }
+  }
+
+  startFinder(false);
+
+  /* --------------------------------
+     LAUNCHER
+  -------------------------------- */
+
+  var LAUNCHER =
+'<!DOCTYPE html>\n' +
+'<html lang="en">\n' +
+'<head>\n' +
+'<meta charset="utf-8">\n' +
+'<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+'<title>The Web Vault</title>\n' +
+'<style>html,body{margin:0;height:100%;background:#0c0914}iframe{border:0;width:100%;height:100%;display:block}</style>\n' +
+'</head>\n' +
+'<body>\n' +
+'<iframe src="' + SITE + '" allow="fullscreen"></iframe>\n' +
+'<noscript><a href="' + SITE + '">Open The Web Vault</a></noscript>\n' +
+'</body>\n' +
+'</html>';
+
+var sparkTimers = new WeakMap();
+
+function sparkButton(button) {
+  if (reduce) return;
+
+  window.clearTimeout(sparkTimers.get(button));
+  var previousSparks = button.querySelector(".button-sparks");
+  if (previousSparks) previousSparks.remove();
+
+  var sparks = document.createElement("span");
+  sparks.className = "button-sparks";
+  sparks.setAttribute("aria-hidden", "true");
+
+  [
+    { left: "0%", top: "50%", x: "-14px", y: "0px", angle: "90deg" },
+    { left: "25%", top: "0%", x: "-6px", y: "-13px", angle: "45deg" },
+    { left: "50%", top: "0%", x: "0px", y: "-16px", angle: "0deg" },
+    { left: "75%", top: "0%", x: "6px", y: "-13px", angle: "-45deg" },
+    { left: "100%", top: "50%", x: "14px", y: "0px", angle: "90deg" },
+    { left: "75%", top: "100%", x: "6px", y: "13px", angle: "45deg" },
+    { left: "50%", top: "100%", x: "0px", y: "16px", angle: "0deg" },
+    { left: "25%", top: "100%", x: "-6px", y: "13px", angle: "-45deg" }
+  ].forEach(function (position) {
+    var spark = document.createElement("span");
+    spark.style.setProperty("--left", position.left);
+    spark.style.setProperty("--top", position.top);
+    spark.style.setProperty("--x", position.x);
+    spark.style.setProperty("--y", position.y);
+    spark.style.setProperty("--angle", position.angle);
+    sparks.appendChild(spark);
+  });
+
+  button.appendChild(sparks);
+  sparkTimers.set(button, window.setTimeout(function () {
+    sparks.remove();
+    sparkTimers.delete(button);
+  }, 700));
+}
+
+  // about:blank
+  $("#cloak").addEventListener("click", function () {
+    var message = $("#cloakmsg");
+    var win = window.open("about:blank", "_blank");
+
+    if (!win) {
+      message.textContent =
+        "Pop-up blocked. Allow pop-ups for this page, then try again.";
+      return;
+    }
+
+    win.document.title = "The Web Vault";
+    win.document.body.style.cssText =
+      "margin:0;height:100vh;background:#0c0914";
+
+    var frame = win.document.createElement("iframe");
+    frame.src = SITE;
+    frame.allow = "fullscreen";
+    frame.style.cssText =
+      "border:0;width:100%;height:100%;display:block";
+
+    win.document.body.appendChild(frame);
+    message.textContent = "Opened in a new tab.";
+    sparkButton(this);
+  });
+
+  // Download HTML launcher
+  $("#dl").addEventListener("click", function () {
+    var blob = new Blob([LAUNCHER], { type: "text/html" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+
+    link.href = url;
+    link.download = "Vault.html";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 1000);
+
+    $("#dlmsg").textContent = "Downloaded Vault.html.";
+    sparkButton(this);
+  });
+
+  // Copy launcher
+  $$("[data-copy]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var output = button.closest(".panel").querySelector(".msg");
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(LAUNCHER).then(
+          function () {
+            output.textContent = "Launcher code copied.";
+            sparkButton(button);
+          },
+          function () {
+            output.textContent =
+              "Copy failed. Use the download button instead.";
+          }
+        );
+      } else {
+        output.textContent =
+          "Clipboard unavailable. Use the download button instead.";
+      }
+    });
+  });
+
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+/* upgrade layer: Lenis, GSAP ScrollTrigger, cursor light, dock */
+(function(){
+  var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine=window.matchMedia&&matchMedia("(hover: hover)").matches;
+  var fx=document.createElement("div");fx.className="fx";fx.setAttribute("aria-hidden","true");
+  document.body.insertBefore(fx,document.body.firstChild);
+  var g=document.createElement("div");g.className="grain";g.setAttribute("aria-hidden","true");document.body.appendChild(g);
+
+  /* cursor light + bordered-card spotlight + magnetic buttons */
+  var mx=-999,my=-999,lx=-999,ly=-999,mt=0;
+  if(fine){
+    document.addEventListener("pointermove",function(e){
+      mx=e.clientX;my=e.clientY;mt=performance.now();if(lx<-900){lx=mx;ly=my}
+      var s=e.target.closest&&e.target.closest(".item,.panel,.fq,.fr");
+      if(s){var r=s.getBoundingClientRect();s.style.setProperty("--mx",(e.clientX-r.left)+"px");s.style.setProperty("--my",(e.clientY-r.top)+"px")}
+    },{passive:true});
+  }
+  function glow(){lx+=(mx-lx)*.1;ly+=(my-ly)*.1;fx.style.setProperty("--cx",lx.toFixed(1)+"px");fx.style.setProperty("--cy",ly.toFixed(1)+"px");fx.style.setProperty("--ga",Math.max(0,Math.min(1,1-(performance.now()-mt-1200)/900)).toFixed(2))}
+
+  /* Lenis smooth scroll, driven by the GSAP ticker so ScrollTrigger stays in sync */
+  var ln=null;
+  if(!rm){
+    ln=new Lenis({lerp:.085,smoothWheel:true});
+    ln.on("scroll",ScrollTrigger.update);gsap.ticker.add(function(t){ln.raf(t*1000)});gsap.ticker.lagSmoothing(0);
+    document.addEventListener("click",function(e){
+      var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+      var id=a.getAttribute("href").slice(1),t=id&&document.getElementById(id);if(!t)return;
+      e.preventDefault();ln.scrollTo(t,{duration:1.7,easing:function(x){return 1-Math.pow(1-x,4)}});
+    });
+  }
+  /* dust field: light canvas, particles brighten and drift away from the cursor */
+  var cv=document.createElement("canvas");fx.insertBefore(cv,fx.firstChild);
+  var c=cv.getContext("2d"),W=0,H=0,P=[],B=[],R=[],lt=0;
+  function size(){var D=Math.min(devicePixelRatio||1,1.5);W=innerWidth;H=innerHeight;cv.width=W*D;cv.height=H*D;c.setTransform(D,0,0,D,0,0);
+    var n=Math.min(70,Math.round(W*H/26000));P=[];
+    for(var i=0;i<n;i++)P.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+.5,v:Math.random()*.2+.05,a:Math.random()*.45+.15,p:Math.random()*6.28,ix:0,iy:0});
+    if(rm)dust(0)}
+  function dust(t){
+    var dt=lt?Math.min(t-lt,50)/16.67:1;lt=t;
+    c.clearRect(0,0,W,H);c.fillStyle="#c4a4ff";
+    for(var i=0;i<P.length;i++){var p=P[i],dx=p.x-lx,dy=p.y-ly,d=Math.sqrt(dx*dx+dy*dy),f=d<200?1-d/200:0;
+      if(!rm){p.x+=p.ix;p.y+=p.iy;p.ix*=.92;p.iy*=.92;p.y-=p.v;p.x+=Math.sin(t/2600+p.p)*.12;
+        if(f>0&&d>1){p.x+=dx/d*f*1.3;p.y+=dy/d*f*1.3}
+        if(p.y<-4){p.y=H+4;p.x=Math.random()*W}if(p.x<-4)p.x=W+4;else if(p.x>W+4)p.x=-4}
+      c.globalAlpha=Math.min(1,p.a*(.75+Math.sin(t/900+p.p)*.25)+f*.55);
+      c.beginPath();c.arc(p.x,p.y,p.r*(1+f*1.3),0,6.283);c.fill()}
+    for(var k=B.length-1;k>=0;k--){var b=B[k],fr=Math.pow(.94,dt);
+      b.x+=b.vx*dt;b.y+=b.vy*dt;b.vx*=fr;b.vy*=fr;b.l-=dt/b.m;
+      if(b.l<=0){B.splice(k,1);continue}
+      c.globalAlpha=b.l*.9;c.beginPath();c.arc(b.x,b.y,b.r*(.5+b.l*.5),0,6.283);c.fill()}
+    c.strokeStyle="#d4b8ff";c.lineWidth=1.5;
+    for(var m=R.length-1;m>=0;m--){var q=R[m];q.r+=5*dt;q.l-=dt/38;
+      if(q.l<=0){R.splice(m,1);continue}
+      c.globalAlpha=q.l*.45;c.beginPath();c.arc(q.x,q.y,q.r,0,6.283);c.stroke()}
+    c.globalAlpha=1}
+  /* click burst: sparks fly out, a ring expands, nearby dust gets shoved */
+  document.addEventListener("pointerdown",function(e){
+    if(rm)return;var x=e.clientX,y=e.clientY,n=16;
+    for(var i=0;i<n;i++){var a=i/n*6.283+Math.random()*.4,v=Math.random()*3.2+1.2;
+      B.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,r:Math.random()*1.6+.9,l:1,m:45+Math.random()*30})}
+    if(B.length>160)B.splice(0,B.length-160);
+    R.push({x:x,y:y,r:4,l:1});
+    for(var j=0;j<P.length;j++){var p=P[j],dx=p.x-x,dy=p.y-y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<200&&d>1){var f=1-d/200;p.ix+=dx/d*f*7;p.iy+=dy/d*f*7}}
+  },{passive:true});
+  addEventListener("resize",size);size();
+  if(!rm)gsap.ticker.add(function(t){if(fine)glow();dust(t*1000)});
+
+  /* GSAP ScrollTrigger: staggered reveals replace the old CSS reveals, plus a gentle heading parallax */
+  if(!rm){
+    gsap.registerPlugin(ScrollTrigger);
+    document.documentElement.classList.add("gsap");
+    ScrollTrigger.batch(".rv",{start:"top 90%",once:true,
+      onEnter:function(els){gsap.fromTo(els,{autoAlpha:0,y:38,filter:"blur(6px)"},
+        {autoAlpha:1,y:0,filter:"blur(0px)",duration:.95,ease:"power3.out",stagger:.09,overwrite:true,clearProps:"filter"})}});
+    addEventListener("load",function(){ScrollTrigger.refresh()});
+  }
+
+  /* floating section dock */
+  var defs=[["inside","System"],["start","Start"],["enter","Access"],["faq","FAQ"]];
+  var nav=document.createElement("nav");nav.className="dock";nav.setAttribute("aria-label","Sections");
+  var links={};
+  defs.forEach(function(d){if(!document.getElementById(d[0]))return;
+    var a=document.createElement("a");a.href="#"+d[0];a.textContent=d[1];nav.appendChild(a);links[d[0]]=a});
+  document.body.appendChild(nav);
+  function tick(){
+    var y=scrollY,vh=innerHeight,cur=null;
+    nav.classList.toggle("on",y>vh*1.25);
+    Object.keys(links).forEach(function(id){var r=document.getElementById(id).getBoundingClientRect();
+      if(r.top<vh*.5&&r.bottom>vh*.35)cur=id});
+    Object.keys(links).forEach(function(id){links[id].classList.toggle("cur",id===cur)})}
+  addEventListener("scroll",tick,{passive:true});tick();
+})();
+</script>
+
+</body>
+</html>

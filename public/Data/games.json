@@ -1,0 +1,322 @@
+[
+   {
+      "title": "Cryzen.io",
+      "description": "A fast-paced online multiplayer first-person shooter with team deathmatch modes and character customization.",
+      "category": "fps",
+      "icon": "🔫",
+      "rating": "★★★★☆",
+      "url": "https://cryzen.io/"
+   },
+   {
+      "title": "Kour.io",
+      "description": "A multiplayer IO FPS game with intense battles across various maps and game modes.",
+      "category": "fps",
+      "icon": "🎯",
+      "rating": "★★★★☆",
+      "url": "https://kour.org/"
+   },
+   {
+      "title": "Buckshot Roulette",
+      "description": "Rusian roulette but more american",
+      "category": "simulation",
+      "icon": "⛏ ",
+      "rating": "★★★☆☆",
+      "url": "https://badparentingame.io/play/buckshot-roulette/"
+   },
+   {
+      "title": "Minecraft",
+      "description": "Its minecraft 1.12.2",
+      "category": "simulation",
+      "icon": "⛏ ",
+      "rating": "★★★☆☆",
+      "url": "https://err422.github.io/The-Vault-games/mineral.html"
+   },
+   {
+      "title": "UltraKill",
+      "description": "A web port of the game UltraKill",
+      "category": "fps",
+      "icon": "🔫",
+      "rating": "★★★★☆",
+      "url": "https://err422.github.io/The-Vault-games/ultrakill.html"
+   },
+   {
+      "title": "Run 3",
+      "description": "It's run 3",
+      "category": "idle",
+      "icon": "🧱",
+      "rating": "★★★★☆",
+      "url": "https://badparentingame.io/play/run-3/"
+   },
+   {
+      "title": "Diablo 1",
+      "description": "The classic dungeon-crawler RPG where players battle demons, collect loot, and level up in gothic underground depths.",
+      "category": "rpg",
+      "icon": "⚔️",
+      "rating": "★★★★★",
+      "url": "https://d07riv.github.io/diabloweb/"
+   },
+   {
+      "title": "Clicker Heroes",
+      "description": "An idle clicker game where players slay monsters, upgrade heroes, and progress through zones while building massive damage numbers.",
+      "category": "idle",
+      "icon": "🏆",
+      "rating": "★★★★☆",
+      "url": "https://clickerheroes.com/play"
+   },
+   {
+      "title": "Trimps",
+      "description": "A unique incremental game combining resource management with combat as players manage small creatures called Trimps.",
+      "category": "simulation",
+      "icon": "🐹",
+      "rating": "★★★★☆",
+      "url": "https://trimps.github.io/"
+   },
+   {
+      "title": "Clover Pit",
+      "description": "GAMBLING",
+      "category": "idle",
+      "icon": "📺",
+      "rating": "★★★☆☆",
+      "url": "https://err422.github.io/The-Vault-games/clover-pit.html"
+   },
+   {
+      "title": "Baletro",
+      "description": "A rogue-like poker game",
+      "category": "simulation",
+      "icon": "🃏️",
+      "rating": "★★★★☆",
+      "url": "https://err422.github.io/The-Vault-games/baletro.html"
+   },
+   {
+      "title": "Brotato",
+      "description": "A fun bullet hell game",
+      "category": "simulation",
+      "icon": "🥔️",
+      "rating": "★★★★☆",
+      "url": "https://err422.github.io/The-Vault-games/brotato.html"
+   },
+   {
+      "title": "Doom",
+      "description": "Its doom. It works very well",
+      "category": "fps",
+      "icon": "🔫",
+      "rating": "★★★☆☆",
+      "url": "https://err422.github.io/The-Vault-games/doom.html"
+   },
+   {
+      "title": "Half Life",
+      "description": "Its half life. it takes a minute to load",
+      "category": "fps",
+      "icon": "🎭",
+      "rating": "★★★☆☆",
+      "url": "https://www.onlinegames.io/games/2022/unity2/masked-special-forces/index.html"
+   },
+   {
+      "title": "Thats Not my Neighbor",
+      "description": "idk",
+      "category": "idle",
+      "icon": "🦫",
+      "rating": "★★★☆☆",
+      "url": "https://badparentingame.io/play/thats-not-my-neighbor/"
+   },
+   {
+      "title": "Block Blast",
+      "description": "A puzzle game where players arrange and clear blocks by creating lines, combining match-three mechanics with strategic block placement.",
+      "category": "puzzle",
+      "icon": "🧩",
+      "rating": "★★★★☆",
+      "url": "https://cloud.onlinegames.io/games/2024/unity3/block-blast/index-og.html"
+   },
+   {
+      "title": "Poly Track",
+      "description": "A fun low poly version of Trackmania",
+      "category": "racing",
+      "icon": "🏎",
+      "rating": "★★★★☆",
+      "url": "https://app-polytrack.kodub.com/0.5.0/?"
+   },
+   {
+      "title": "OpenGuessr",
+      "description": "A geography guessing game where players use visual clues from street view images to guess locations around the world.",
+      "category": "trivia",
+      "icon": "🌍",
+      "rating": "★★★★☆",
+      "url": "https://openguessr.com/"
+   },
+   {
+      "title": "Go",
+      "description": "Play the Japanese game of GO",
+      "category": "puzzle",
+      "icon": "🎲",
+      "rating": "★★★★☆",
+      "url": "https://www.gomagic.org/play-go/"
+   },
+   {
+      "title": "Case Clicker 2",
+      "description": "Open Counter Strike cases",
+      "category": "idle",
+      "icon": "📦",
+      "rating": "★★★★☆",
+      "url": "https://csgo.mtsl.dk/"
+   },
+   {
+      "title": "Drift.io",
+      "description": "A fun MMO style idle game",
+      "category": "idle",
+      "icon": "⛏️",
+      "rating": "★★★★☆",
+      "url": "https://drift.io/"
+   },
+   {
+      "title": "Diep.io",
+      "description": "A fun tank evolution .IO game",
+      "category": "simulation",
+      "icon": "⛏️",
+      "rating": "★★★★☆",
+      "url": "https://diep.io/"
+   },
+   {
+      "title": "Cuphead",
+      "description": "A slow loading web port of the game Cuphead",
+      "category": "simulation",
+      "icon": "n/a",
+      "rating": "★★★★☆",
+      "url": "https://err422.github.io/cuphead/"
+   },
+   {
+      "title": "FNAF 1",
+      "description": "The first FNAF game",
+      "category": "simulation",
+      "icon": "n/a",
+      "rating": "★★★★★",
+      "url": "https://genizy.github.io/fnaf/1/"
+   },
+   {
+      "title": "FNAF 2",
+      "description": "The second FNAF game",
+      "category": "simulation",
+      "icon": "n/a",
+      "rating": "★★★★★",
+      "url": "https://genizy.github.io/fnaf/2/"
+   },
+   {
+      "title": "FNAF 3",
+      "description": "The third FNAF game",
+      "category": "simulation",
+      "icon": "n/a",
+      "rating": "★★★★★",
+      "url": "https://genizy.github.io/fnaf/3/"
+   },
+   {
+      "title": "FNAF 4",
+      "description": "The fourth FNAF game",
+      "category": "simulation",
+      "icon": "n/a",
+      "rating": "★★★★★",
+      "url": "https://genizy.github.io/fnaf/4/"
+   },
+   {
+      "title": "FNAF World",
+      "description": "A web port of FNAF World",
+      "category": "simulation",
+      "icon": "n/a",
+      "rating": "★★★★★",
+      "url": "https://genizy.github.io/fnaf/w/"
+   },
+   {
+      "title": "FNAF Pizzeria Simulator",
+      "description": "A web Port of FNAF Pizzeria Simulator",
+      "category": "simulation",
+      "icon": "n/a",
+      "rating": "★★★★★",
+      "url": "https://genizy.github.io/fnaf/ps/"
+   },
+   {
+      "title": "FNAF UCN",
+      "description": "A web port of FNAF UCN",
+      "category": "Simulation",
+      "icon": "n/a",
+      "rating": "★★★★☆",
+      "url": "https://genizy.github.io/fnaf/ucn/"
+   },
+   {
+      "title": "FNAF Sister Location",
+      "description": "A web port of FNAF Sister Location",
+      "category": "Simulation",
+      "icon": "n/a",
+      "rating": "★★★★☆",
+      "url": "https://genizy.github.io/fnaf/sl/"
+   },
+   {
+      "title": "Fireboy and Watergirl",
+      "description": "Fun two player game",
+      "category": "puzzle",
+      "icon": "🎭",
+      "rating": "★★★★★",
+      "url": "https://fireboy-andwatergirl.io/"
+   },
+   {
+      "title": "Conflict of Nations",
+      "description": "Real-time modern military     strategy game",
+      "category": "strategy",
+      "icon": "🌍",
+      "rating": "★★★★★",
+      "url": "https://www.conflictnations.com/"
+   },
+   {
+      "title": "2V2.io",
+      "description": "Web-Browser Fortnight",
+      "category": "FPS",
+      "icon": "n/a",
+      "rating": "★★★★★",
+      "url": "https://2v2.io/"
+   },
+   {
+      "title": "CSGO 1.6",
+      "description": "Play Counter-Strike directly in your browser",
+      "category": "action",
+      "icon": "🔫",
+      "rating": "★★★★★",
+      "url": "https://play-cs.com"
+   },
+   {
+      "title": "Call of Duty",
+      "description": "A browser-based Call of Duty-style FPS with multiplayer combat.",
+      "category": "fps",
+      "icon": "🎖️",
+      "rating": "★★★★☆",
+      "url": "http://vibeslops.luckeysystems.com/"
+   },
+   {
+      "title": "Call of Duty: Zombies",
+      "description": "A lightweight browser-based take on classic Call of Duty Zombies survival gameplay.",
+      "category": "fps",
+      "icon": "🧟",
+      "rating": "★★★★☆",
+      "url": "https://nzp.gay/"
+   },
+   {
+      "title": "Townscaper",
+      "description": "A relaxing creative building toy where you place colorful blocks to create charming island towns.",
+      "category": "simulation",
+      "icon": "🏘️",
+      "rating": "★★★★☆",
+      "url": "https://oskarstalberg.com/Townscaper/"
+   },
+   {
+      "title": "Smash Karts",
+      "description": "A fast-paced multiplayer kart arena game with chaotic driving and power-ups.",
+      "category": "racing",
+      "icon": "🏎️",
+      "rating": "★★★★☆",
+      "url": "https://smashkarts.io/"
+   },
+   {
+      "title": "SurfD",
+      "description": "A browser-based Counter-Strike-style surfing game focused on momentum, air-strafing, and navigating surf maps.",
+      "category": "simulation",
+      "icon": "🏄",
+      "rating": "★★★★☆",
+      "url": "https://surfd.net/"
+   }
+]
