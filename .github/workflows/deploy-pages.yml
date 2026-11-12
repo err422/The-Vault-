@@ -28,11 +28,22 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run build
       # Unknown paths on GitHub Pages fall back to the desktop instead of GitHub's 404 page.
-      - run: cp dist/client/index.html dist/client/404.html && rm -f dist/client/_headers
+      # The finished files land in dist/client or .output/public depending on the build setup.
+      - name: Collect the finished site
+        run: |
+          for d in dist/client .output/public; do
+            if [ -f "$d/index.html" ]; then SRC="$d"; break; fi
+          done
+          if [ -z "$SRC" ]; then echo "No index.html found in dist/client or .output/public"; exit 1; fi
+          echo "Using $SRC"
+          rm -rf site && cp -r "$SRC" site
+          cp site/index.html site/404.html
+          rm -f site/_headers site/_redirects
+          ls -la site
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/client
+          path: site
 
   deploy:
     needs: build

@@ -36,4 +36,4 @@ use the editor.
 - `src/vault/shared/*.js` are classic scripts injected inline via `?raw`, not ES modules. Why: they rely on sloppy-mode globals (`auth`, `database`) from `FirebaseConfig.js`.
 - The site is WebOS-only; classic mode was removed. Why: the owner retired it.
 - Tailwind preflight is intentionally not imported in `src/styles.css`. Why: the original Vault stylesheets rely on browser default styles.
-- Hosting is GitHub Pages (static files): `vite.config.ts` prerenders `/` and `.github/workflows/deploy-pages.yml` publishes `dist/client`. Why: the owner hosts for free on GitHub Pages, so no server functions, server routes or per-request rendering may be added.
+- Hosting is GitHub Pages (static files): `vite.config.ts` prerenders `/` and `.github/workflows/deploy-pages.yml` publishes the prerendered output (`dist/client` or `.output/public`, whichever the build produced). Why: the owner hosts for free on GitHub Pages, so no server functions, server routes or per-request rendering may be added.
