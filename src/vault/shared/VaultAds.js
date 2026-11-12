@@ -1,9 +1,11 @@
 // VaultAds.js - Central membership-aware advertising gate.
+import * as cloud from '../cloud.js';
+
 (function () {
   let ready = false;
   let adFree = false;
   let adsLoaded = false;
-  let membershipRef = null;
+  let stopMembershipWatch = null;
   let hasMembershipSnapshot = false;
 
   function syncUI() {
@@ -53,25 +55,22 @@
   }
 
   function watchMembership(user, initialMembership) {
-    if (membershipRef) {
-      membershipRef.off();
-      membershipRef = null;
+    if (stopMembershipWatch) {
+      stopMembershipWatch();
+      stopMembershipWatch = null;
     }
     hasMembershipSnapshot = false;
 
-    if (!user || !window.database) {
+    if (!user) {
       applyMembership(null, false);
       return;
     }
 
-    membershipRef = window.database.ref('users/' + user.uid + '/membership');
     // The profile snapshot gives us an immediate initial value. The live
     // listener then catches admin activation/deactivation while the user is online.
     applyMembership(initialMembership, true);
-    membershipRef.on('value', (snapshot) => {
-      applyMembership(snapshot.val(), true);
-    }, (error) => {
-      console.warn('[VaultAds] Could not watch membership:', error);
+    stopMembershipWatch = cloud.watchMembership(user.uid, (membership) => {
+      applyMembership(membership, true);
     });
   }
 

@@ -28,3 +28,12 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## The Vault (project rules)
+
+- The WebOS is plain browser JavaScript under `src/vault/` (migrated from the original vanilla site); `src/routes/index.tsx` renders the original page skeleton and dynamically imports `src/vault/boot.js` after hydration. Why: the OS touches `window`/`document` at import time and must never run during SSR.
+- All backend reads/writes from vault code go through `src/vault/cloud.js`; do not call the database client directly from OS apps. Why: one place maps the old Firebase data shapes (ms timestamps, `uid`) to Lovable Cloud tables.
+- Username → email resolution (username sign-in, reset-by-username) happens only in `src/lib/vault-auth.functions.ts` on the server. Why: profiles' emails must never be readable by the browser.
+- Admin status lives in `user_roles` (checked with `has_role`); Vault+ memberships are written only by admins. Why: prevents self-granting privileges.
+- Tailwind preflight is intentionally not imported in `src/styles.css`. Why: the original Vault stylesheets rely on browser default styles.
+- `src/vault/legacy/` holds classic-mode scripts kept for a future port; they are not imported and still reference Firebase. Why: the classic pages they belong to were missing from the imported archive.

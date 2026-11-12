@@ -1,5 +1,7 @@
 // The Vault visit tracker
-// Counts every real index.html load and every SPA navigation that loads index.html.
+// Counts every real home page load and every SPA navigation that loads the home page.
+import * as cloud from '../cloud.js';
+
 (function () {
     'use strict';
 
@@ -11,34 +13,18 @@
     }
 
     function recordVisit() {
-        if (typeof database === 'undefined' || !database) {
-            console.warn('[VisitTracker] Firebase database is not available.');
-            return;
-        }
-
-        const visitsRef = database.ref('siteStats/visits');
-
-        visitsRef.transaction(function (currentVisits) {
-            const count = Number(currentVisits);
-            return Number.isFinite(count) ? count + 1 : 1;
-        }).then(function (result) {
-            if (result.committed) {
-                window.vaultVisitCount = result.snapshot.val();
-                updateVisitDisplay(window.vaultVisitCount);
-                console.log('[VisitTracker] Visit recorded. Total:', window.vaultVisitCount);
-            }
+        cloud.recordVisit().then(function (count) {
+            window.vaultVisitCount = count;
+            updateVisitDisplay(count);
+            console.log('[VisitTracker] Visit recorded. Total:', count);
         }).catch(function (error) {
-            console.warn('[VisitTracker] Could not record visit:', error.message);
+            console.warn('[VisitTracker] Could not record visit:', error && error.message);
         });
     }
 
     // Make this available to the SPA navigation system.
     window.recordVaultVisit = recordVisit;
 
-    // The initial index.html load counts once here.
-    if (typeof database !== 'undefined' && database) {
-        recordVisit();
-    } else {
-        window.addEventListener('load', recordVisit, { once: true });
-    }
+    // The initial home page load counts once here.
+    recordVisit();
 })();

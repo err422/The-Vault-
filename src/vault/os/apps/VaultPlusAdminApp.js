@@ -2,10 +2,12 @@
  * @fileoverview Admin-only Vault+ membership manager.
  *
  * Memberships are manually verified and granted by an authenticated admin.
- * Records are stored at users/{uid}/membership.
+ * Records are stored in the memberships table (admin-only writes).
  *
  * @module os/apps/VaultPlusAdminApp
  */
+
+import * as cloud from '../../cloud.js';
 
 export const AppManifest = {
   id: 'vault-plus-admin',
@@ -193,28 +195,9 @@ export const AppManifest = {
       if (searchableUsers) return searchableUsers;
 
       if (!searchLoadPromise) {
-        searchLoadPromise = window.database
-          .ref('users')
-          .once('value')
-          .then((snapshot) => {
-            const users = snapshot.val() || {};
-
-            searchableUsers = Object.entries(users)
-              .filter(([uid, user]) =>
-                user &&
-                typeof user === 'object' &&
-                typeof user.username === 'string'
-              )
-              .map(([uid, user]) => ({
-                uid,
-                username: user.username,
-                email: typeof user.email === 'string' ? user.email : '',
-                membership:
-                  user.membership && typeof user.membership === 'object'
-                    ? user.membership
-                    : {}
-              }));
-
+        searchLoadPromise = cloud.listAccountsForAdmin()
+          .then((accounts) => {
+            searchableUsers = accounts.filter((user) => typeof user.username === 'string');
             return searchableUsers;
           })
           .finally(() => {
@@ -400,9 +383,7 @@ export const AppManifest = {
           updatedByUsername: window.AuthCore.currentUsername || null
         };
 
-        await window.database
-          .ref('users/' + selectedMember.uid + '/membership')
-          .set(membership);
+        await cloud.setMembership(selectedMember.uid, membership);
 
         selectedMember.membership = membership;
 
@@ -425,7 +406,7 @@ export const AppManifest = {
       } catch (error) {
         console.error('[VaultPlusAdmin] Membership update failed:', error);
         setMessage(
-          'Could not update membership. Firebase may be denying this write; check your database rules.',
+          'Could not update membership. Make sure you are signed in as an admin and try again.',
           'error'
         );
         setBusy(false);

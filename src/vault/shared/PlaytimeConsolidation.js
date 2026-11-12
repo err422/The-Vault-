@@ -1,3 +1,5 @@
+import * as cloud from '../cloud.js';
+
 (function() {
     
     // Helper: Get week number in format "2026-W01"
@@ -32,107 +34,77 @@
         return diffDays;
     }
     
-    //  Consolodate entries to save space and keep data clean
+    //  Consolidate entries to save space and keep data clean
     async function consolidatePlaytime(userId) {
-        
         try {
-            // Get all playtime data
-            const snapshot = await database.ref(`users/${userId}/playtime`).once('value');
-            const data = snapshot.val();
-            
-            if (!data) {
-                return;
-            }
-            
-            const daily = data.daily || {};
-            const weekly = data.weekly || {};
-            const monthly = data.monthly || {};
-            
-            let updates = {};
-            
-            // === STEP 1: Consolidate old daily entries into weekly entries after a week ===
-            for (const dateStr in daily) {
-                const age = daysAgo(dateStr);
-                
-                if (age >= 7) {
+            const profile = await cloud.getProfile(userId);
+            const data = profile && profile.playtime;
+            if (!data) return;
+
+            const playtime = JSON.parse(JSON.stringify(data));
+            const daily = playtime.daily || {};
+            const weekly = playtime.weekly || {};
+            const monthly = playtime.monthly || {};
+            const yearly = playtime.yearly || {};
+            let changed = false;
+
+            // STEP 1: daily entries older than a week roll into weekly totals
+            for (const dateStr of Object.keys(daily)) {
+                if (daysAgo(dateStr) >= 7) {
                     const weekStr = getWeekNumber(dateStr);
-                    
-                    // Merge this day's data into the appropriate week
+                    weekly[weekStr] = weekly[weekStr] || {};
                     for (const game in daily[dateStr]) {
-                        const seconds = daily[dateStr][game];
-                        const weekPath = `weekly/${weekStr}/${game}`;
-                        const currentWeeklySeconds = (weekly[weekStr] && weekly[weekStr][game]) || 0;
-                        updates[weekPath] = currentWeeklySeconds + seconds;
+                        weekly[weekStr][game] = (Number(weekly[weekStr][game]) || 0) + (Number(daily[dateStr][game]) || 0);
                     }
-                    
-                    // Mark this daily entry for deletion
-                    updates[`daily/${dateStr}`] = null;
+                    delete daily[dateStr];
+                    changed = true;
                 }
             }
-            
-            // === STEP 2: Consolidate old weekly entries into monthly ===
-            for (const weekStr in weekly) {
-                // Extract year and week number from "2026-W01"
+
+            // STEP 2: weekly entries older than 4 weeks roll into monthly totals
+            for (const weekStr of Object.keys(weekly)) {
                 const [year, weekPart] = weekStr.split('-W');
                 const weekNum = parseInt(weekPart);
-                
-                // Calculate approximate date (first day of that week)
                 const jan1 = new Date(year, 0, 1);
-                const daysOffset = (weekNum - 1) * 7;
-                const weekDate = new Date(jan1.getTime() + daysOffset * 24 * 60 * 60 * 1000);
-                const age = daysAgo(weekDate.toISOString().split('T')[0]);
-                
-                if (age >= 28) { // 4 weeks
+                const weekDate = new Date(jan1.getTime() + (weekNum - 1) * 7 * 24 * 60 * 60 * 1000);
+                if (daysAgo(weekDate.toISOString().split('T')[0]) >= 28) {
                     const monthStr = getMonthString(weekDate);
-                    
-                    // Merge this week's data into the correct month
+                    monthly[monthStr] = monthly[monthStr] || {};
                     for (const game in weekly[weekStr]) {
-                        const seconds = weekly[weekStr][game];
-                        const monthPath = `monthly/${monthStr}/${game}`;
-                        const currentMonthlySeconds = (monthly[monthStr] && monthly[monthStr][game]) || 0;
-                        updates[monthPath] = currentMonthlySeconds + seconds;
+                        monthly[monthStr][game] = (Number(monthly[monthStr][game]) || 0) + (Number(weekly[weekStr][game]) || 0);
                     }
-                    
-                    // Mark this weekly entry for deletion
-                    updates[`weekly/${weekStr}`] = null;
+                    delete weekly[weekStr];
+                    changed = true;
                 }
             }
-            
-            // === STEP 3: Consolidate old monthly entries into yearly entries ===
-            for (const monthStr in monthly) {
+
+            // STEP 3: monthly entries older than 12 months roll into yearly totals
+            for (const monthStr of Object.keys(monthly)) {
                 const monthDate = new Date(monthStr + '-01');
-                const age = daysAgo(monthDate.toISOString().split('T')[0]);
-                
-                if (age >= 365) { // 12 months
+                if (daysAgo(monthDate.toISOString().split('T')[0]) >= 365) {
                     const yearStr = getYearString(monthDate);
-                    
-                    // Merge this month's data into the appropriate year
+                    yearly[yearStr] = yearly[yearStr] || {};
                     for (const game in monthly[monthStr]) {
-                        const seconds = monthly[monthStr][game];
-                        const yearPath = `yearly/${yearStr}/${game}`;
-                        
-                        // Need to get current yearly data
-                        const yearlySnapshot = await database.ref(`users/${userId}/playtime/yearly/${yearStr}/${game}`).once('value');
-                        const currentYearlySeconds = yearlySnapshot.val() || 0;
-                        updates[yearPath] = currentYearlySeconds + seconds;
+                        yearly[yearStr][game] = (Number(yearly[yearStr][game]) || 0) + (Number(monthly[monthStr][game]) || 0);
                     }
-                    
-                    // Mark this monthly entry for deletion
-                    updates[`monthly/${monthStr}`] = null;
+                    delete monthly[monthStr];
+                    changed = true;
                 }
             }
-            
-            // === STEP 4: Apply all updates at once ===
-            if (Object.keys(updates).length > 0) {
-                await database.ref(`users/${userId}/playtime`).update(updates);
-            } else {
+
+            // STEP 4: save once
+            if (changed) {
+                playtime.daily = daily;
+                playtime.weekly = weekly;
+                playtime.monthly = monthly;
+                playtime.yearly = yearly;
+                await cloud.updateProfileFields(userId, { playtime });
             }
-            
         } catch (error) {
             console.error('❌ Error during consolidation:', error);
         }
     }
-    
+
     // Export the function
     window.consolidatePlaytime = consolidatePlaytime;
     

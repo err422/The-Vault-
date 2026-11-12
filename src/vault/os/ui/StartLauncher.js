@@ -361,7 +361,7 @@ export function init() {
   btnClassic.title = 'Switch to Classic Web Vault view';
   btnClassic.addEventListener('click', () => {
     localStorage.setItem('vault_view_mode', 'classic');
-    window.location.href = 'index.html?mode=classic';
+    window.location.href = '/?mode=classic';
   });
 
   footer.appendChild(btnSignIn);

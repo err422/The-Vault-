@@ -8,6 +8,13 @@
       "when": 1794442537181,
       "tag": "0000_vault_core_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794443185629,
+      "tag": "0001_tighten_function_execute",
+      "breakpoints": true
     }
   ]
 }

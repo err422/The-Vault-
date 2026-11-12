@@ -1,10 +1,11 @@
 /**
  * VaultNet multiplayer service.
- * Uses the site's existing Firebase instance; never initializes Firebase.
+ * Uses Lovable Cloud realtime: a shared presence room and the chat_messages table.
  * BroadcastChannel is a same-browser testing fallback, not internet multiplayer.
  */
 import store from '../core/Store.js';
 import notificationManager from '../core/NotificationManager.js';
+import * as cloud from '../../cloud.js';
 
 const HEARTBEAT_MS = 15000;
 const STALE_MS = 45000;
@@ -23,7 +24,8 @@ class MultiplayerService {
     this.cleanups = [];
     this.db = null;
     this.channel = null;
-    this.presenceRef = null;
+    this.presence = null;
+    this.presenceJoined = false;
     this.uid = null;
     this.username = 'Vault Guest';
     this.avatar = '🧑‍💻';
@@ -36,7 +38,7 @@ class MultiplayerService {
   init() {
     if (this.started) return;
     this.started = true;
-    this.db = window.database && typeof window.database.ref === 'function' ? window.database : null;
+    this.db = cloud;
     this._syncSession();
     this.cleanups.push(store.on('user:changed', () => this._syncSession()));
     const refreshActivity = () => this._syncActivityFromWindows();
@@ -74,8 +76,14 @@ class MultiplayerService {
   _authChanged = () => this._syncSession();
   _leave = () => {
     this._broadcast({ type: 'leave', clientId: this.clientId });
-    if (this.presenceRef) this.presenceRef.remove().catch(() => {});
+    this._leavePresence();
   };
+
+  _leavePresence() {
+    if (this.presence) { try { this.presence.leave(); } catch {} }
+    this.presence = null;
+    this.presenceJoined = false;
+  }
 
   destroy() {
     if (!this.started) return;
@@ -178,13 +186,13 @@ class MultiplayerService {
       return false;
     }
     try {
-      await this.db.ref('vaultnet/chat').push(message);
+      await cloud.sendChatMessage(message);
       return true;
     } catch (error) {
       console.warn('[VaultNet] Chat write failed:', error);
       notificationManager.notify({
         title: 'VaultNet unavailable',
-        message: 'Chat could not sync. Firebase rules may need updating.',
+        message: 'Chat could not sync. Check your connection and try again.',
         type: 'warning'
       });
       return false;
@@ -205,10 +213,9 @@ class MultiplayerService {
       this._changed();
       return;
     }
-    if (this.presenceRef) this.presenceRef.remove().catch(() => {});
     this._detachFirebase();
+    this._leavePresence();
     this.uid = nextUid;
-    this.presenceRef = null;
     if (this.uid && this.db) this._attachFirebase();
     this.presenceStatus = this.uid && this.db ? 'connecting' : 'local-only';
     this._publishPresence();
@@ -216,11 +223,9 @@ class MultiplayerService {
   }
 
   _attachFirebase() {
-    const presence = this.db.ref('vaultnet/presence');
-    const onPresence = snap => {
+    const onPresence = list => {
       const next = new Map();
-      const data = snap.val() || {};
-      for (const peer of Object.values(data)) {
+      for (const peer of list) {
         if (!peer || !peer.clientId || !peer.uid || peer.uid === this.uid) continue;
         if (Date.now() - Number(peer.lastSeen || 0) > STALE_MS) continue;
         next.set(String(peer.clientId), {
@@ -235,27 +240,29 @@ class MultiplayerService {
       this.peers = next;
       this._changed();
     };
-    presence.on('value', onPresence);
-    const offPresence = () => presence.off('value', onPresence); offPresence.firebaseListener = true; this.cleanups.push(offPresence);
-
-    const chat = this.db.ref('vaultnet/chat').limitToLast(40);
-    // Firebase push() stores messages under generated child keys. Listen to
-    // each child, not the entire object, so incoming messages have an id.
-    const onChat = snap => {
-      const value = snap.val();
-      if (value) {
-        const message = { ...value, id: value.id || snap.key };
-        this._notifyPublicMessage(message);
-        this._addMessage(message);
+    const onStatus = status => {
+      if (status === 'SUBSCRIBED') {
+        this.presenceJoined = true;
+        this._publishPresence();
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        this.presenceJoined = false;
+        this.presenceStatus = 'denied';
+        console.warn('[VaultNet] Presence channel status:', status);
+        this._changed();
       }
     };
-    chat.on('child_added', onChat);
-    const offChat = () => chat.off('child_added', onChat); offChat.firebaseListener = true; this.cleanups.push(offChat);
+    this.presence = cloud.joinPresence(this.clientId, onPresence, onStatus);
 
-    this.presenceRef = this.db.ref('vaultnet/presence/' + this.clientId);
-    this.presenceRef.onDisconnect().remove().catch(() => {});
-
-    // Each signed-in user listens only to their own inbox.
+    const onChat = message => {
+      if (!message) return;
+      this._notifyPublicMessage(message);
+      this._addMessage(message);
+    };
+    cloud.fetchRecentChat(40)
+      .then(list => list.forEach(onChat))
+      .catch(error => console.warn('[VaultNet] Could not load recent chat:', error));
+    const offChat = cloud.subscribeChat(onChat);
+    const offChatListener = () => offChat(); offChatListener.firebaseListener = true; this.cleanups.push(offChatListener);
   }
 
   _detachFirebase() {
@@ -275,8 +282,9 @@ class MultiplayerService {
     };
     this._broadcast({ type: 'presence', payload: peer });
     if (!this.uid || !this.db) this.presenceStatus = 'local-only';
-    if (this.uid && this.presenceRef) {
-      this.presenceRef.set(peer).then(() => {
+    if (this.uid && this.presence && this.presenceJoined) {
+      Promise.resolve(this.presence.track(peer)).then(result => {
+        if (result && result !== 'ok') throw new Error('track ' + result);
         this.presenceStatus = 'connected';
         this._changed();
       }).catch(error => {
